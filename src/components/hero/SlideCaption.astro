@@ -1,0 +1,202 @@
+---
+import { formatStars } from '../../lib/stars';
+
+/** The badge on the right of the caption rule: a spec mark or a star count. */
+type Meta = { kind: 'spec'; label: string } | { kind: 'stars'; repo: string; fallbackStars: number };
+
+interface Props {
+  index: string;
+  total: string;
+  name: string;
+  nameId: string;
+  tagline: string;
+  meta?: Meta;
+  logo?: string;
+  href?: string;
+  offLabel?: string;
+}
+
+const { index, total, name, nameId, tagline, meta, logo, href, offLabel } = Astro.props;
+---
+
+<div class="cap">
+  <div class="cap-top">
+    <span class="cap-ix">{index} / {total}</span>
+    <span class="cap-rule" aria-hidden="true"></span>
+    {meta?.kind === 'spec' && <span class="cap-spec">{meta.label}</span>}
+    {
+      meta?.kind === 'stars' && (
+        <span class="cap-stars">
+          <i aria-hidden="true">★</i>
+          <span data-stars={meta.repo}>{formatStars(meta.fallbackStars)}</span>
+          <span class="sr-only">GitHub stars</span>
+        </span>
+      )
+    }
+  </div>
+
+  <div class="cap-name">
+    {logo && <img src={logo} alt="" width="24" height="24" />}
+    <h2 id={nameId}>{name}</h2>
+  </div>
+
+  <p class="cap-sub">{tagline}</p>
+
+  {
+    href ? (
+      <a class="cap-link" href={href}>
+        View on GitHub <span aria-hidden="true">→</span>
+      </a>
+    ) : (
+      <span class="cap-link is-off">{offLabel ?? 'Not yet public'}</span>
+    )
+  }
+</div>
+
+<style>
+  /* Identical geometry on every slide, so nothing jumps as the carousel turns. */
+  .cap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cap-top {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 20px;
+  }
+
+  .cap-ix {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.16em;
+    color: var(--color-accent);
+  }
+
+  .cap-rule {
+    flex: 1 1 auto;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 117, 0, 0.3),
+      var(--color-line-soft) 44%,
+      var(--color-line-soft)
+    );
+  }
+
+  .cap-stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-body);
+  }
+
+  .cap-stars i {
+    font-style: normal;
+    color: var(--color-accent);
+    text-shadow: 0 0 10px rgba(255, 117, 0, 0.7);
+  }
+
+  .cap-spec {
+    padding: 3px 8px;
+    border: 1px solid rgba(255, 117, 0, 0.42);
+    border-radius: 4px;
+    background: rgba(255, 117, 0, 0.07);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-accent-soft);
+  }
+
+  .cap-name {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-top: 15px;
+  }
+
+  .cap-name img {
+    width: 24px;
+    height: 24px;
+    filter: drop-shadow(0 0 9px rgba(255, 117, 0, 0.35));
+  }
+
+  .cap-name h2 {
+    font-size: 25px;
+    font-weight: 640;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  .cap-sub {
+    margin-top: 9px;
+    max-width: 46ch;
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  .cap-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    width: fit-content;
+    padding-bottom: 3px;
+    border-bottom: 1px solid rgba(255, 117, 0, 0.28);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: var(--color-accent-soft);
+    transition:
+      color 0.2s,
+      border-color 0.2s;
+  }
+
+  .cap-link:hover {
+    color: #ffbe80;
+    border-color: rgba(255, 117, 0, 0.7);
+  }
+
+  .cap-link.is-off {
+    color: var(--color-muted);
+    border-color: transparent;
+    pointer-events: none;
+  }
+
+  @media (max-width: 659px) {
+    .cap {
+      height: 170px;
+    }
+
+    .cap-name h2 {
+      font-size: 22px;
+    }
+
+    .cap-sub {
+      font-size: 15px;
+    }
+  }
+</style>
+
+<script>
+  import { fetchStars, formatStars } from '../../lib/stars';
+
+  for (const el of document.querySelectorAll<HTMLElement>('[data-stars]')) {
+    const repo = el.dataset.stars;
+    if (!repo) continue;
+
+    fetchStars(repo).then((count) => {
+      if (count !== null) el.textContent = formatStars(count);
+    });
+  }
+</script>

@@ -1,0 +1,100 @@
+---
+---
+
+<header class="hdr">
+  <div class="wrap hdr-in">
+    <a class="brand" href="/">
+      <img class="mark" src="/logos/fnnx.svg" alt="" width="25" height="25" />
+      <span class="wordmark">fnnx.ai</span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="https://discord.com/invite/YDAbwuWK7V">Discord</a>
+      <a class="ghost" href="https://github.com/BeastByteAI">
+        GitHub <span aria-hidden="true">&#8599;</span>
+      </a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .hdr {
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    border-bottom: 1px solid var(--color-line-soft);
+    background: rgba(8, 9, 10, 0.7);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+  }
+
+  .hdr-in {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 74px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+  }
+
+  .mark {
+    width: 29px;
+    height: 29px;
+    filter: drop-shadow(0 0 10px rgba(255, 117, 0, 0.4));
+  }
+
+  .wordmark {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 550;
+    letter-spacing: 0.05em;
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .nav a {
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    color: var(--color-body);
+    transition:
+      color 0.2s,
+      background 0.2s,
+      border-color 0.2s;
+  }
+
+  .nav a:hover {
+    color: var(--color-ink);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .nav a.ghost {
+    border: 1px solid var(--color-line);
+    color: var(--color-ink);
+  }
+
+  .nav a.ghost:hover {
+    border-color: rgba(255, 117, 0, 0.45);
+    background: rgba(255, 117, 0, 0.08);
+  }
+
+  @media (max-width: 659px) {
+    .hdr-in {
+      height: 62px;
+    }
+
+    .nav a {
+      padding: 8px 11px;
+      font-size: 12.5px;
+    }
+  }
+</style>

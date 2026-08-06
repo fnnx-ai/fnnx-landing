@@ -1,0 +1,1023 @@
+---
+import {
+  CODE_SLOTS,
+  MEMBERS,
+  ROOT,
+  TREE,
+  codeHtml,
+  crumbFor,
+  gutterFor,
+  highlightPython,
+} from '../lib/artifact';
+
+const initial = MEMBERS.manifest!;
+const crumb = crumbFor(initial);
+
+const clauses = [
+  {
+    n: '01',
+    title: 'Agnostic by design',
+    body: 'Independent of framework, platform, and language.',
+  },
+  {
+    n: '02',
+    title: 'Strict to flexible',
+    body: 'pipeline for strict, portable graphs; pyfunc for flexible Python.',
+  },
+  {
+    n: '03',
+    title: 'Open spec & SDKs',
+    body: 'A JSON-schema specification · SDKs for Python and JavaScript.',
+  },
+] as const;
+
+const targets = [
+  { label: 'server', sub: 'py · js' },
+  { label: 'browser', sub: 'js sdk' },
+  { label: 'notebook', sub: 'py sdk' },
+  { label: 'edge', sub: 'self-contained env' },
+] as const;
+
+const runSnippet = `from fnnx.runtime import Runtime
+
+Runtime("${ROOT}").compute(inputs, {})`;
+---
+
+<section
+  id="artifact"
+  class="inside"
+  style={`--slots:${CODE_SLOTS}`}
+  aria-labelledby="inside-heading"
+>
+  <div class="field" aria-hidden="true"></div>
+
+  <div class="wrap sec">
+    <div class="sec-head">
+      <h2 class="tag" id="inside-heading">Inside the artifact</h2>
+      <span class="rule" aria-hidden="true"></span>
+    </div>
+
+    <h3 class="lede">A model is more than its weights<span class="dot">.</span></h3>
+
+    <div class="shell">
+      <div class="shell-glow" aria-hidden="true"></div>
+
+      <div class="shell-bar">
+        <span class="file"><i aria-hidden="true"></i>{ROOT}</span>
+      </div>
+
+      <div class="split">
+        <div class="pane-tree">
+          <p class="cmd">
+            <span class="p" aria-hidden="true">$</span><span>tar -tf {ROOT}</span><span
+              class="caret"
+              aria-hidden="true"></span>
+          </p>
+
+          <ul class="tree" id="ia-tree">
+            <li class="root-row">{ROOT}</li>
+            {
+              TREE.map((row) => {
+                const isDir = row.name.endsWith('/');
+                const base = isDir ? row.name.slice(0, -1) : row.name;
+                const label = (
+                  <>
+                    <span class="g">{row.glyph}</span>
+                    <span class="n">
+                      {base}
+                      {isDir && <span class="sl">/</span>}
+                    </span>
+                  </>
+                );
+
+                return (
+                  <li>
+                    {row.id ? (
+                      <button
+                        class="row"
+                        type="button"
+                        data-id={row.id}
+                        aria-controls="ia-panel"
+                        aria-current={row.id === 'manifest' ? 'true' : undefined}
+                      >
+                        {label}
+                      </button>
+                    ) : (
+                      <span class="row dir">{label}</span>
+                    )}
+                  </li>
+                );
+              })
+            }
+          </ul>
+
+          <p class="tree-foot">
+            <span class="hint"><b aria-hidden="true">&#9671;</b>pick a member</span>
+          </p>
+
+          <span class="leader" id="ia-leader" aria-hidden="true"></span>
+        </div>
+
+        <div class="pane-insp">
+          <div class="insp-top" id="ia-panel" aria-live="polite">
+            <div class="insp-head">
+              <p class="crumb" id="ia-crumb">
+                {
+                  crumb.trail.map((part) => (
+                    <>
+                      {part}
+                      <span class="sl">/</span>
+                    </>
+                  ))
+                }
+                <b>{crumb.leaf}</b>
+              </p>
+              <span class="kind" id="ia-kind">{initial.kind}</span>
+            </div>
+            <p class="role" id="ia-role">{initial.role}</p>
+          </div>
+
+          <div class="code-wrap">
+            <div class="gutter" id="ia-gutter" aria-hidden="true">{gutterFor(initial.code)}</div>
+            <pre class="code" id="ia-code" set:html={codeHtml(initial)} />
+          </div>
+
+          <p class="insp-foot">
+            <span class="fr" id="ia-status" data-ok={initial.valid ? 'true' : undefined}>
+              {initial.status}
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <ul class="clauses">
+      {
+        clauses.map((clause) => (
+          <li>
+            <span class="n">{clause.n}</span>
+            <h4>{clause.title}</h4>
+            <p>{clause.body}</p>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="run">
+      <div class="run-code">
+        <p class="run-bar"><span class="dot" aria-hidden="true"></span>python</p>
+        <pre class="snip" set:html={highlightPython(runSnippet)} />
+      </div>
+
+      <div class="run-out">
+        <ul class="targets">
+          {
+            targets.map((target) => (
+              <li>
+                <span class="pin" aria-hidden="true" />
+                <span class="t">{target.label}</span>
+                <span class="s">{target.sub}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <a class="spec-link" href="https://github.com/BeastByteAI/FNNX/tree/main/spec">
+          Read the spec <span aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .inside {
+    --play: paused;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .inside.live {
+    --play: running;
+  }
+
+  /* The terminal sits on graph paper, not on void. */
+  .field {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(var(--color-line-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-line-soft) 1px, transparent 1px);
+    background-size: 58px 58px;
+    background-position: center;
+    -webkit-mask-image: radial-gradient(
+      ellipse 58% 60% at 50% 46%,
+      #000 0%,
+      rgba(0, 0, 0, 0.55) 45%,
+      transparent 78%
+    );
+    mask-image: radial-gradient(
+      ellipse 58% 60% at 50% 46%,
+      #000 0%,
+      rgba(0, 0, 0, 0.55) 45%,
+      transparent 78%
+    );
+    opacity: 0.55;
+  }
+
+  .inside .wrap {
+    position: relative;
+    z-index: 1;
+  }
+
+  .lede {
+    margin: -14px 0 26px;
+    font-size: clamp(26px, 2.5vw, 34px);
+    font-weight: 620;
+    line-height: 1.14;
+    letter-spacing: -0.028em;
+    color: var(--color-ink);
+  }
+
+  .lede .dot {
+    color: var(--color-accent);
+  }
+
+  /* ---------------- the shell ---------------- */
+  .shell {
+    position: relative;
+    border: 1px solid var(--color-line);
+    border-radius: 10px;
+    background: var(--color-panel);
+  }
+
+  /* Rim light along the bottom edge, the way the artifact plates are lit. */
+  .shell::after {
+    content: "";
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    bottom: -1px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 117, 0, 0.6), transparent);
+  }
+
+  .shell-glow {
+    position: absolute;
+    left: 14%;
+    right: 14%;
+    bottom: -26px;
+    height: 26px;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse 50% 100% at 50% 0%,
+      rgba(255, 117, 0, 0.16),
+      transparent 70%
+    );
+  }
+
+  .shell-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    height: 46px;
+    padding: 0 22px;
+    border-bottom: 1px solid var(--color-line);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+  }
+
+  .shell-bar .file {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--color-ink);
+  }
+
+  .shell-bar .file i {
+    flex: none;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 9px rgba(255, 117, 0, 0.85);
+  }
+
+  .split {
+    display: flex;
+    align-items: stretch;
+  }
+
+  /* ---------------- left: the tar listing ---------------- */
+  .pane-tree {
+    position: relative;
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    width: 428px;
+    padding: 24px 26px 0;
+    border-right: 1px solid var(--color-line);
+  }
+
+  .cmd {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+    margin-bottom: 10px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--color-line-soft);
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    color: var(--color-ink);
+  }
+
+  .cmd .p {
+    color: var(--color-accent);
+  }
+
+  .caret {
+    display: inline-block;
+    width: 7px;
+    height: 14px;
+    transform: translateY(2px);
+    background: var(--color-accent-soft);
+    opacity: 0.9;
+    animation: blink 1.15s steps(1) infinite;
+    animation-play-state: var(--play);
+  }
+
+  @keyframes blink {
+    0%,
+    50% {
+      opacity: 0.9;
+    }
+    50.01%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .root-row {
+    padding: 3px 0 5px 8px;
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    letter-spacing: 0.01em;
+    color: var(--color-muted);
+  }
+
+  .row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    letter-spacing: 0.01em;
+    text-align: left;
+    color: var(--color-body);
+    cursor: pointer;
+  }
+
+  .row .g {
+    flex: none;
+    white-space: pre;
+    color: rgba(255, 255, 255, 0.33);
+  }
+
+  .row .n {
+    transition: color 0.18s ease;
+  }
+
+  .row .n .sl {
+    color: var(--color-muted);
+  }
+
+  .row.dir {
+    cursor: default;
+    color: var(--color-muted);
+  }
+
+  .row.dir .n {
+    color: var(--color-muted);
+  }
+
+  .row::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 4px;
+    bottom: 4px;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--color-accent);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  button.row:hover {
+    background: rgba(255, 255, 255, 0.028);
+  }
+
+  button.row:hover .n {
+    color: var(--color-ink);
+  }
+
+  .row:focus-visible {
+    outline: 1px solid rgba(255, 161, 77, 0.5);
+    outline-offset: -1px;
+  }
+
+  .row.on {
+    background: rgba(255, 255, 255, 0.045);
+  }
+
+  .row.on .n {
+    color: var(--color-ink);
+  }
+
+  .row.on .n .sl {
+    color: var(--color-accent-soft);
+  }
+
+  .row.on::before {
+    opacity: 1;
+    box-shadow: 0 0 10px rgba(255, 117, 0, 0.7);
+  }
+
+  /* Leader line from the selected row to the divider, as on the hero artifact. */
+  .leader {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 78px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22));
+    transition:
+      top 0.42s cubic-bezier(0.2, 0.7, 0.2, 1),
+      opacity 0.25s ease;
+  }
+
+  .leader::after {
+    content: "";
+    position: absolute;
+    right: -3.5px;
+    top: -3px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow:
+      0 0 10px rgba(255, 117, 0, 0.95),
+      0 0 24px rgba(255, 117, 0, 0.35);
+  }
+
+  .tree-foot {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: auto;
+    padding: 14px 0;
+    border-top: 1px solid var(--color-line-soft);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--color-muted);
+  }
+
+  .tree-foot .hint {
+    font-size: 11.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .tree-foot .hint b {
+    padding-right: 7px;
+    font-weight: 400;
+    color: var(--color-accent-soft);
+  }
+
+  /* ---------------- right: the inspector ---------------- */
+  .pane-insp {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    padding: 24px 28px 0;
+  }
+
+  .insp-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+
+  .crumb {
+    overflow: hidden;
+    min-width: 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--color-muted);
+  }
+
+  .crumb b {
+    font-weight: 400;
+    color: var(--color-ink);
+  }
+
+  .crumb .sl {
+    padding: 0 6px;
+    color: rgba(255, 255, 255, 0.22);
+  }
+
+  .kind {
+    flex: none;
+    margin-left: auto;
+    padding: 3px 8px;
+    border: 1px solid var(--color-line);
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .role {
+    margin-top: 14px;
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--color-accent-soft);
+  }
+
+  .code-wrap {
+    /* Gutter and source only stay in register if they share one fixed line box. */
+    --line: 22px;
+    display: flex;
+    flex: none;
+    gap: 18px;
+    height: calc(var(--slots) * var(--line) + 18px);
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid var(--color-line-soft);
+    overflow: auto;
+    scrollbar-width: thin;
+  }
+
+  .gutter {
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: var(--line);
+    text-align: right;
+    white-space: pre;
+    user-select: none;
+    color: rgba(255, 255, 255, 0.22);
+  }
+
+  pre.code {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: var(--line);
+    white-space: pre;
+    color: var(--color-body);
+  }
+
+  /* Token spans are injected with set:html, so they sit outside component scoping. */
+  .code :global(.t-key),
+  .code :global(.t-kw) {
+    color: var(--color-ink);
+  }
+
+  .code :global(.t-str),
+  .code :global(.t-num) {
+    color: var(--color-accent-soft);
+  }
+
+  .code :global(.t-lit),
+  .code :global(.t-punct) {
+    color: var(--color-muted);
+  }
+
+  .code :global(.t-com) {
+    color: rgba(255, 255, 255, 0.33);
+  }
+
+  .code :global(.t-tilde) {
+    color: rgba(255, 255, 255, 0.14);
+  }
+
+  .insp-foot {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 14px;
+    margin-top: 18px;
+    padding: 14px 0;
+    border-top: 1px solid var(--color-line-soft);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--color-muted);
+  }
+
+  .insp-foot .fr {
+    flex: none;
+    margin-left: auto;
+    white-space: nowrap;
+  }
+
+  .insp-foot .fr[data-ok] {
+    color: var(--color-accent-soft);
+  }
+
+  .insp-foot .fr[data-ok]::before {
+    content: "\2713\00a0";
+  }
+
+  /* ---------------- clause strip ---------------- */
+  .clauses {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: 44px;
+    border-top: 1px solid var(--color-line-soft);
+  }
+
+  .clauses li {
+    padding: 24px 26px 0 0;
+    border-left: 1px solid var(--color-line-soft);
+    padding-left: 22px;
+  }
+
+  .clauses li:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .clauses .n {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--color-accent);
+  }
+
+  .clauses h4 {
+    margin-top: 8px;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.014em;
+    color: var(--color-ink);
+  }
+
+  .clauses p {
+    margin-top: 7px;
+    max-width: 38ch;
+    font-size: 15px;
+    line-height: 1.6;
+    text-wrap: balance;
+    color: var(--color-body);
+  }
+
+  /* ---------------- run strip ---------------- */
+  .run {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    margin-top: 40px;
+    border: 1px solid var(--color-line-soft);
+    border-radius: 8px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 70%);
+  }
+
+  .run-code {
+    min-width: 0;
+    border-right: 1px solid var(--color-line-soft);
+  }
+
+  .run-bar {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 11px 20px;
+    border-bottom: 1px solid var(--color-line-soft);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .run-bar .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 8px 1px rgba(255, 117, 0, 0.7);
+  }
+
+  pre.snip {
+    padding: 18px 20px 20px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.75;
+    white-space: pre;
+    color: var(--color-body);
+  }
+
+  .snip :global(.t-kw) {
+    color: var(--color-ink);
+  }
+
+  .snip :global(.t-str) {
+    color: var(--color-accent-soft);
+  }
+
+  .run-out {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 18px 20px 16px;
+  }
+
+  .targets {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 20px;
+  }
+
+  .targets li {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+    min-width: 0;
+  }
+
+  .targets .pin {
+    flex: none;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 8px 1px rgba(255, 117, 0, 0.65);
+    transform: translateY(-2px);
+  }
+
+  .targets .t {
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    color: #c6cbd0;
+  }
+
+  .targets .s {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    color: var(--color-muted);
+  }
+
+  .spec-link {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 18px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.03em;
+    color: var(--color-accent-soft);
+    transition: color 0.2s;
+  }
+
+  .spec-link span {
+    transition: transform 0.2s;
+  }
+
+  .spec-link:hover {
+    color: var(--color-accent);
+  }
+
+  .spec-link:hover span {
+    transform: translateX(3px);
+  }
+
+  /* ---------------- responsive ---------------- */
+  @media (max-width: 1199px) {
+    .pane-tree {
+      width: 372px;
+      padding: 22px 20px 0;
+    }
+
+    .pane-insp {
+      padding: 22px 20px 0;
+    }
+  }
+
+  @media (max-width: 999px) {
+    .split {
+      flex-direction: column;
+    }
+
+    .pane-tree {
+      width: 100%;
+      padding-bottom: 4px;
+      border-right: 0;
+      border-bottom: 1px solid var(--color-line);
+    }
+
+    .leader {
+      display: none;
+    }
+
+    /* A shorter viewport, still cut on a whole line. */
+    .code-wrap {
+      height: auto;
+      max-height: calc(16 * var(--line) + 18px);
+    }
+
+    .clauses {
+      grid-template-columns: 1fr;
+    }
+
+    .clauses li {
+      padding: 20px 0;
+      border-left: 0;
+      border-bottom: 1px solid var(--color-line-soft);
+    }
+
+    .clauses p {
+      max-width: 52ch;
+    }
+
+    .run {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .run-code {
+      border-right: 0;
+      border-bottom: 1px solid var(--color-line-soft);
+    }
+  }
+
+  @media (max-width: 659px) {
+    .lede {
+      margin: -4px 0 20px;
+    }
+
+    .shell-bar {
+      gap: 10px;
+      padding: 0 14px;
+      font-size: 11.5px;
+    }
+
+    .pane-tree,
+    .pane-insp {
+      padding-left: 14px;
+      padding-right: 14px;
+    }
+
+    .row,
+    .root-row,
+    .cmd {
+      font-size: 12.5px;
+    }
+
+    pre.code {
+      font-size: 12px;
+    }
+
+    .gutter {
+      font-size: 11.5px;
+    }
+
+    .insp-head {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .kind {
+      margin-left: 0;
+    }
+
+    .tree-foot,
+    .insp-foot {
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .insp-foot .fr {
+      margin-left: 0;
+      flex-basis: 100%;
+    }
+
+    .targets {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+  }
+</style>
+
+<script>
+  import {
+    MEMBERS,
+    MEMBER_IDS,
+    codeHtml,
+    crumbFor,
+    gutterFor,
+    stepMember,
+  } from '../lib/artifact';
+
+  const section = document.querySelector<HTMLElement>('.inside');
+  const tree = document.getElementById('ia-tree');
+  const leader = document.getElementById('ia-leader');
+  const crumb = document.getElementById('ia-crumb');
+  const kind = document.getElementById('ia-kind');
+  const role = document.getElementById('ia-role');
+  const code = document.getElementById('ia-code');
+  const gutter = document.getElementById('ia-gutter');
+  const status = document.getElementById('ia-status');
+
+  if (section && tree && leader && crumb && kind && role && code && gutter && status) {
+    const rows = new Map<string, HTMLButtonElement>();
+    for (const row of tree.querySelectorAll<HTMLButtonElement>('button.row')) {
+      rows.set(row.dataset.id ?? '', row);
+    }
+
+    let pinned = 'manifest';
+
+    const show = (id: string) => {
+      const member = MEMBERS[id];
+      if (!member) return;
+
+      for (const [key, row] of rows) {
+        const on = key === id;
+        row.classList.toggle('on', on);
+        if (on) row.setAttribute('aria-current', 'true');
+        else row.removeAttribute('aria-current');
+      }
+
+      const { trail, leaf } = crumbFor(member);
+      crumb.innerHTML = '';
+      for (const part of trail) {
+        crumb.append(part);
+        const slash = document.createElement('span');
+        slash.className = 'sl';
+        slash.textContent = '/';
+        crumb.append(slash);
+      }
+      const leafEl = document.createElement('b');
+      leafEl.textContent = leaf;
+      crumb.append(leafEl);
+
+      kind.textContent = member.kind;
+      role.textContent = member.role;
+      code.innerHTML = codeHtml(member);
+      gutter.textContent = gutterFor(member.code);
+      status.textContent = member.status;
+      if (member.valid) status.dataset.ok = 'true';
+      else delete status.dataset.ok;
+
+      const row = rows.get(id);
+      if (row) {
+        leader.style.top = `${row.offsetTop + row.offsetHeight / 2}px`;
+        leader.style.opacity = '1';
+      }
+    };
+
+    for (const [id, row] of rows) {
+      row.addEventListener('mouseenter', () => show(id));
+      row.addEventListener('focus', () => show(id));
+      row.addEventListener('click', () => {
+        pinned = id;
+        show(id);
+      });
+      row.addEventListener('keydown', (event) => {
+        const delta = event.key === 'ArrowDown' ? 1 : event.key === 'ArrowUp' ? -1 : 0;
+        if (!delta) return;
+        event.preventDefault();
+        const next = stepMember(id, delta, MEMBER_IDS);
+        pinned = next;
+        rows.get(next)?.focus();
+      });
+    }
+
+    // Leaving the listing hands the inspector back to the pinned member.
+    tree.addEventListener('mouseleave', () => show(pinned));
+
+    show(pinned);
+    window.addEventListener('resize', () => show(pinned));
+
+    // The caret only blinks while the section is on screen.
+    new IntersectionObserver(
+      ([entry]) => section.classList.toggle('live', entry?.isIntersecting ?? false),
+      { rootMargin: '120px' },
+    ).observe(section);
+  }
+</script>

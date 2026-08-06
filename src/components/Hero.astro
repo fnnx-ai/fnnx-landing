@@ -1,0 +1,767 @@
+---
+import Icon from './Icon.astro';
+import FalconViz from './hero/FalconViz.astro';
+import FireflyViz from './hero/FireflyViz.astro';
+import FnnxViz from './hero/FnnxViz.astro';
+import ScikitLlmViz from './hero/ScikitLlmViz.astro';
+import SlideCaption from './hero/SlideCaption.astro';
+import { dwellSeconds } from '../lib/carousel';
+import '../styles/hero-iso.css';
+
+const INSTALL = 'pip install fnnx';
+
+/** The rail doubles as the ecosystem index: one tab per library, in slide order. */
+const tabs = [
+  { n: '01', name: 'FNNX', logo: '/logos/fnnx.svg', marker: 'thread' },
+  { n: '02', name: 'Scikit-LLM', logo: '/logos/scikit-llm.svg', marker: null },
+  { n: '03', name: 'Falcon', logo: '/logos/falcon.svg', marker: null },
+  { n: '04', name: 'Firefly', logo: '/logos/firefly.svg', marker: null },
+] as const;
+---
+
+<section class="hero" id="hero">
+  <div class="hero-bg" aria-hidden="true"></div>
+
+  <div class="wrap hero-in">
+    <!-- Left column: stable. It never rotates with the carousel. -->
+    <div class="hero-copy">
+      <p class="eyebrow">
+        <span class="pip" aria-hidden="true"></span>Open source · MIT licensed
+      </p>
+
+      <h1>
+        An open ecosystem for machine&nbsp;learning<span class="dot">.</span>
+      </h1>
+
+      <p class="sub">
+        Independent open-source libraries, each doing one thing well — train models, wield LLMs,
+        ship them anywhere.
+      </p>
+
+      <div class="cta">
+        <a class="btn btn-p" href="https://github.com/BeastByteAI">
+          <Icon name="github" class="h-[15px] w-[15px]" />
+          Explore on GitHub
+        </a>
+        <button class="chip" type="button" data-copy={INSTALL}>
+          <span class="p" aria-hidden="true">$</span>
+          <span class="txt">{INSTALL}</span>
+          <span class="st" aria-live="polite">copy</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Right column: one slide per library, all sharing the caption geometry. -->
+    <div class="stage" id="stage">
+      <article class="slide" id="slide-1" role="tabpanel" aria-labelledby="s1-name" data-on>
+        <div class="viz" aria-hidden="true"><div class="viz-in"><FnnxViz /></div></div>
+        <SlideCaption
+          index="01"
+          total="04"
+          name="FNNX"
+          nameId="s1-name"
+          logo="/logos/fnnx.svg"
+          tagline="An open format for shipping any model — the thread through this ecosystem."
+          meta={{ kind: 'spec', label: 'Open spec' }}
+          href="https://github.com/BeastByteAI/FNNX"
+        />
+      </article>
+
+      <article
+        class="slide"
+        id="slide-2"
+        role="tabpanel"
+        aria-labelledby="s2-name"
+        aria-hidden="true"
+      >
+        <div class="viz" aria-hidden="true"><div class="viz-in"><ScikitLlmViz /></div></div>
+        <SlideCaption
+          index="02"
+          total="04"
+          name="Scikit-LLM"
+          nameId="s2-name"
+          logo="/logos/scikit-llm.svg"
+          tagline="Large language models in the familiar scikit-learn API."
+          meta={{ kind: 'stars', repo: 'BeastByteAI/scikit-llm', fallbackStars: 3530 }}
+          href="https://github.com/BeastByteAI/scikit-llm"
+        />
+      </article>
+
+      <article
+        class="slide"
+        id="slide-3"
+        role="tabpanel"
+        aria-labelledby="s3-name"
+        aria-hidden="true"
+      >
+        <div class="viz" aria-hidden="true"><div class="viz-in"><FalconViz /></div></div>
+        <SlideCaption
+          index="03"
+          total="04"
+          name="Falcon"
+          nameId="s3-name"
+          logo="/logos/falcon.svg"
+          tagline="Production-ready ML training in a single line of code."
+          meta={{ kind: 'stars', repo: 'BeastByteAI/falcon', fallbackStars: 165 }}
+          href="https://github.com/BeastByteAI/falcon"
+        />
+      </article>
+
+      <article
+        class="slide"
+        id="slide-4"
+        role="tabpanel"
+        aria-labelledby="s4-name"
+        aria-hidden="true"
+      >
+        <div class="viz" aria-hidden="true"><div class="viz-in"><FireflyViz /></div></div>
+        <SlideCaption
+          index="04"
+          total="04"
+          name="Firefly"
+          nameId="s4-name"
+          logo="/logos/firefly.svg"
+          tagline="A minimal, torch-like deep learning framework."
+        />
+      </article>
+    </div>
+  </div>
+
+  <div class="wrap rail-shell">
+    <div class="rail" id="rail" role="tablist" aria-label="Ecosystem libraries">
+      {
+        tabs.map((tab, i) => (
+          <button
+            class:list={['tab', i === 0 && 'on']}
+            id={`tab-${i + 1}`}
+            type="button"
+            role="tab"
+            aria-selected={i === 0 ? 'true' : 'false'}
+            aria-controls={`slide-${i + 1}`}
+            tabindex={i === 0 ? 0 : -1}
+            style={`--dwell:${dwellSeconds(i)}s`}
+          >
+            {tab.logo ? (
+              <img src={tab.logo} alt="" width="17" height="17" />
+            ) : (
+              <span class="ember" aria-hidden="true" />
+            )}
+            <span class="tn">{tab.n}</span>
+            <span class="tt">{tab.name}</span>
+            {tab.marker === 'thread' && <span class="thread" aria-hidden="true" />}
+            <i class="bar" aria-hidden="true" />
+          </button>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    /* Slide visuals are drawn in a fixed 600x356 space; --vs scales that to the column. */
+    --vs: 1;
+
+    position: relative;
+    padding: 74px 0 0;
+    /* The ecosystem strip used to draw this line; the rail hands over to the spec section now. */
+    border-bottom: 1px solid var(--color-line-soft);
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: -140px 0 -40px 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(44% 52% at 74% 42%, rgba(255, 117, 0, 0.15), transparent 66%),
+      radial-gradient(34% 36% at 8% 2%, rgba(255, 117, 0, 0.05), transparent 70%);
+  }
+
+  .hero-in {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 600px;
+    gap: 48px;
+    align-items: center;
+  }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .pip {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 10px 1px rgba(255, 117, 0, 0.85);
+  }
+
+  h1 {
+    margin-top: 28px;
+    max-width: 18ch;
+    font-size: clamp(36px, 3.7vw, 54px);
+    font-weight: 640;
+    line-height: 1.05;
+    letter-spacing: -0.033em;
+    color: var(--color-ink);
+  }
+
+  h1 .dot {
+    color: var(--color-accent);
+  }
+
+  .sub {
+    margin-top: 24px;
+    max-width: 40ch;
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--color-body);
+  }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 36px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    height: 48px;
+    padding: 0 21px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 560;
+    transition:
+      transform 0.18s,
+      box-shadow 0.25s,
+      background 0.25s,
+      border-color 0.25s;
+  }
+
+  .btn-p {
+    background: var(--color-accent);
+    color: #160b00;
+    box-shadow:
+      0 10px 32px -12px rgba(255, 117, 0, 0.9),
+      inset 0 1px 0 rgba(255, 255, 255, 0.38);
+  }
+
+  .btn-p:hover {
+    background: #ff8a24;
+    transform: translateY(-1px);
+  }
+
+  /* Click-to-copy install line: a bordered mono pill, legible with or without JS. */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 48px;
+    padding: 0 18px;
+    border: 1px solid var(--color-line);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.02);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--color-ink);
+    cursor: pointer;
+    transition:
+      transform 0.18s,
+      background 0.25s,
+      border-color 0.25s;
+  }
+
+  .chip:hover {
+    border-color: rgba(255, 117, 0, 0.45);
+    background: rgba(255, 117, 0, 0.07);
+    transform: translateY(-1px);
+  }
+
+  .chip:focus-visible {
+    outline: 1px solid rgba(255, 161, 77, 0.6);
+    outline-offset: 2px;
+  }
+
+  .chip .p {
+    color: var(--color-accent);
+  }
+
+  .chip .st {
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    transition: color 0.2s;
+  }
+
+  .chip:hover .st,
+  .chip[data-copied] .st {
+    color: var(--color-accent-soft);
+  }
+
+  .chip[data-copied] {
+    border-color: rgba(255, 117, 0, 0.55);
+    background: rgba(255, 117, 0, 0.09);
+  }
+
+  /* ---------------- carousel stage ---------------- */
+  .stage {
+    position: relative;
+    width: 100%;
+    height: calc(356px * var(--vs) + 156px);
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    transition:
+      opacity 0.45s ease,
+      transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+      visibility 0s linear 0.55s;
+  }
+
+  .slide[data-on] {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition:
+      opacity 0.45s ease,
+      transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+      visibility 0s;
+  }
+
+  .viz {
+    position: relative;
+    height: calc(356px * var(--vs));
+  }
+
+  .viz-in {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 600px;
+    height: 356px;
+    transform: scale(var(--vs));
+    transform-origin: 0 0;
+  }
+
+  /* ---------------- tab rail: the ecosystem, as an index ---------------- */
+  .rail-shell {
+    position: relative;
+    z-index: 1;
+    margin-top: 40px;
+    padding-bottom: 74px;
+  }
+
+  .rail {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--color-line-soft);
+    border-top: 1px solid var(--color-line-soft);
+    border-bottom: 1px solid var(--color-line-soft);
+  }
+
+  .tab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 16px 18px;
+    border: 0;
+    background: var(--color-surface);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.25s;
+  }
+
+  .tab:hover {
+    background: rgba(255, 255, 255, 0.022);
+  }
+
+  .tab img {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 auto;
+    opacity: 0.4;
+    transition: opacity 0.25s;
+  }
+
+  .tab .tn {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--color-muted);
+    transition: color 0.25s;
+  }
+
+  .tab .tt {
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    letter-spacing: 0.02em;
+    color: var(--color-body);
+    transition: color 0.25s;
+  }
+
+  /* FNNX is the thread through the ecosystem, so its tab carries the accent pip. */
+  .tab .thread {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 9px 1px rgba(255, 117, 0, 0.8);
+    opacity: 0.5;
+    transition: opacity 0.25s;
+  }
+
+  .tab .ember {
+    width: 9px;
+    height: 9px;
+    margin: 0 4px;
+    border-radius: 50%;
+    flex: 0 0 auto;
+    background: radial-gradient(
+      circle,
+      rgba(255, 190, 130, 0.9),
+      rgba(255, 117, 0, 0.5) 45%,
+      transparent 72%
+    );
+    opacity: 0.4;
+    transition: opacity 0.25s;
+  }
+
+  .tab.on {
+    background: rgba(255, 255, 255, 0.028);
+  }
+
+  .tab.on img {
+    opacity: 1;
+  }
+
+  .tab.on .tn {
+    color: var(--color-accent);
+  }
+
+  .tab.on .tt {
+    color: var(--color-ink);
+  }
+
+  .tab.on .thread,
+  .tab.on .ember {
+    opacity: 1;
+  }
+
+  .tab.on::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: rgba(255, 117, 0, 0.28);
+  }
+
+  .tab .bar {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 1px;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    background: linear-gradient(90deg, var(--color-accent), var(--color-accent-soft));
+    box-shadow: 0 0 8px rgba(255, 117, 0, 0.6);
+  }
+
+  /* The bar is the clock: the carousel advances when it finishes filling. */
+  .tab.on .bar {
+    animation: railFill var(--dwell, 7s) linear forwards;
+  }
+
+  .hero.paused .tab.on .bar {
+    animation-play-state: paused;
+  }
+
+  @keyframes railFill {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  .tab:focus-visible {
+    outline: 1px solid rgba(255, 161, 77, 0.65);
+    outline-offset: -3px;
+  }
+
+  @media (max-width: 1199px) {
+    .hero-in {
+      grid-template-columns: minmax(0, 1fr) 520px;
+      gap: 36px;
+    }
+  }
+
+  @media (max-width: 1039px) {
+    .hero {
+      padding-top: 56px;
+    }
+
+    .hero-in {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 40px;
+      align-items: start;
+    }
+
+    .stage {
+      max-width: 600px;
+    }
+
+    h1 {
+      max-width: 20ch;
+    }
+
+    .rail-shell {
+      margin-top: 32px;
+      padding-bottom: 56px;
+    }
+  }
+
+  @media (max-width: 659px) {
+    .hero {
+      padding-top: 42px;
+    }
+
+    h1 {
+      margin-top: 20px;
+      max-width: 22ch;
+      font-size: 32px;
+    }
+
+    .sub {
+      margin-top: 18px;
+      font-size: 15.5px;
+    }
+
+    .cta {
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .btn,
+    .chip {
+      flex: 1 1 100%;
+      justify-content: center;
+      height: 46px;
+      padding: 0 14px;
+    }
+
+    .hero-in {
+      gap: 30px;
+    }
+
+    .stage {
+      height: calc(356px * var(--vs) + 176px);
+    }
+
+    .rail {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .tab {
+      padding: 13px 14px;
+      gap: 9px;
+    }
+
+    .tab .tt {
+      font-size: 12.5px;
+    }
+  }
+</style>
+
+<script>
+  import { parseSlideOverride, stepIndex, wrapIndex } from '../lib/carousel';
+
+  const hero = document.getElementById('hero');
+  const stage = document.getElementById('stage');
+  const rail = document.getElementById('rail');
+
+  if (hero && stage && rail) {
+    const slides = [...stage.querySelectorAll<HTMLElement>('.slide')];
+    const tabs = [...rail.querySelectorAll<HTMLButtonElement>('.tab')];
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let current = 0;
+
+    // The visuals are drawn in a fixed 600x356 space; scale to whatever the column gives us.
+    const fit = (): void => {
+      hero.style.setProperty('--vs', String(Math.min(1, stage.clientWidth / 600)));
+    };
+
+    /*
+     * A slide that comes back into view restarts its animations instead of
+     * resuming mid-loop. Clearing and restoring `animation` only re-triggers if
+     * a style flush lands between the two writes, and it has to be one the SVG
+     * elements honour as well — `offsetHeight` is undefined on those — so the
+     * whole slide is cleared, flushed once, then restored.
+     */
+    const restart = (root: HTMLElement): void => {
+      const animated = [...root.querySelectorAll<HTMLElement | SVGElement>('*')].filter(
+        (node) => getComputedStyle(node).animationName !== 'none',
+      );
+
+      for (const node of animated) node.style.animation = 'none';
+      root.getBoundingClientRect();
+      for (const node of animated) node.style.animation = '';
+    };
+
+    const go = (index: number, moveFocus = false): void => {
+      current = wrapIndex(index, slides.length);
+
+      slides.forEach((slide, i) => {
+        slide.toggleAttribute('data-on', i === current);
+        slide.setAttribute('aria-hidden', i === current ? 'false' : 'true');
+      });
+
+      tabs.forEach((tab, i) => {
+        tab.classList.toggle('on', i === current);
+        tab.setAttribute('aria-selected', i === current ? 'true' : 'false');
+        tab.tabIndex = i === current ? 0 : -1;
+      });
+
+      const slide = slides[current];
+      const bar = tabs[current]?.querySelector<HTMLElement>('.bar');
+
+      if (!reduce && slide && bar) {
+        restart(slide);
+        bar.style.animation = 'none';
+        void bar.offsetHeight;
+        bar.style.animation = '';
+      }
+
+      if (moveFocus) tabs[current]?.focus();
+    };
+
+    /*
+     * Auto-advance rides the progress bar's own animation, so every hold is just
+     * `animation-play-state: paused`: pointer, focus, and the hero leaving the
+     * viewport each keep their own reason so releasing one cannot clear another.
+     */
+    const holds = new Set<string>();
+
+    const hold = (reason: string, on: boolean): void => {
+      if (on) holds.add(reason);
+      else holds.delete(reason);
+      hero.classList.toggle('paused', holds.size > 0);
+    };
+
+    for (const [name, region] of [
+      ['stage', stage],
+      ['rail', rail],
+    ] as const) {
+      region.addEventListener('pointerenter', () => hold(`${name}-pointer`, true));
+      region.addEventListener('pointerleave', () => hold(`${name}-pointer`, false));
+      region.addEventListener('focusin', () => hold(`${name}-focus`, true));
+      region.addEventListener('focusout', () => hold(`${name}-focus`, false));
+    }
+
+    new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) hold('offscreen', !entry.isIntersecting);
+      },
+      { threshold: 0 },
+    ).observe(hero);
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => go(i));
+      // The bar carries a single animation, so any end of it is the end of this slide's dwell.
+      tab.querySelector<HTMLElement>('.bar')?.addEventListener('animationend', () => {
+        if (i === current && !reduce) go(current + 1);
+      });
+    });
+
+    const steps: Record<string, number> = {
+      ArrowRight: 1,
+      ArrowDown: 1,
+      ArrowLeft: -1,
+      ArrowUp: -1,
+    };
+
+    const onKeydown = (event: KeyboardEvent): void => {
+      const step = steps[event.key];
+
+      if (step !== undefined) go(stepIndex(current, step, slides.length), true);
+      else if (event.key === 'Home') go(0, true);
+      else if (event.key === 'End') go(slides.length - 1, true);
+      else return;
+
+      event.preventDefault();
+    };
+
+    rail.addEventListener('keydown', onKeydown);
+    stage.addEventListener('keydown', onKeydown);
+
+    fit();
+    window.addEventListener('resize', fit);
+    go(parseSlideOverride(`${location.hash}&${location.search}`, slides.length));
+  }
+
+  const chip = document.querySelector<HTMLButtonElement>('.chip[data-copy]');
+
+  if (chip) {
+    const state = chip.querySelector<HTMLElement>('.st');
+    let reset = 0;
+
+    const copy = async (text: string): Promise<boolean> => {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch {
+        // The clipboard API needs a secure context; fall back to a throwaway selection.
+        const field = document.createElement('textarea');
+        field.value = text;
+        field.setAttribute('readonly', '');
+        field.style.position = 'fixed';
+        field.style.opacity = '0';
+        document.body.append(field);
+        field.select();
+        const legacyCopy = (document as Document & { execCommand?: (command: string) => boolean })
+          .execCommand;
+        const copied = legacyCopy ? legacyCopy.call(document, 'copy') : false;
+        field.remove();
+        return copied;
+      }
+    };
+
+    chip.addEventListener('click', async () => {
+      const copied = await copy(chip.dataset.copy ?? '');
+      if (!state) return;
+
+      state.textContent = copied ? 'copied' : 'copy failed';
+      chip.toggleAttribute('data-copied', copied);
+
+      window.clearTimeout(reset);
+      reset = window.setTimeout(() => {
+        state.textContent = 'copy';
+        chip.removeAttribute('data-copied');
+      }, 1800);
+    });
+  }
+</script>

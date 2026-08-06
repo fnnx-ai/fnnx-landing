@@ -1,0 +1,381 @@
+---
+/**
+ * Slide 01 — "four labelled layers become one sealed object".
+ *
+ * Four plates fly in and dock into an exploded stack under a phoenix lid, each
+ * one tagged by a leader-line callout; clicking seals the stack and drops the
+ * labels. `ze` is a plate's resting height in the exploded stack, `zs` its
+ * height once sealed — the sealed spacing equals the plate thickness, so a
+ * sealed artifact is one solid block with no seams.
+ *
+ * Callouts have to line up with plates that only exist after a 3D transform, so
+ * their stage coordinates are solved here rather than guessed: a plate lifted
+ * by `ze` rises `ze * sin(54deg)` on screen, and the top face's east corner —
+ * where every leader line starts — sits half a diagonal right of centre.
+ */
+const W = 270;
+const CX = 196;
+const CY = 168;
+const SCALE = 0.8;
+
+const rise = Math.sin((54 * Math.PI) / 180) * SCALE;
+const calloutX = CX + (W / Math.SQRT2) * SCALE;
+
+/** Screen travel of the stack's 5px idle float, so the labels bob with it. */
+const bob = 5 * rise;
+
+const plates = [
+  { ze: -84, zs: -45, index: '01', label: 'weights' },
+  { ze: -28, zs: -15, index: '02', label: 'inference code' },
+  { ze: 28, zs: 15, index: '03', label: 'environment spec' },
+  { ze: 84, zs: 45, index: '04', label: 'i/o schemas' },
+] as const;
+
+const lid = plates.length - 1;
+---
+
+<div
+  class="v-fnnx"
+  id="fnnxViz"
+  style={`--W:${W}px;--cx:${CX}px;--cy:${CY}px;--s:${SCALE};--bob:${bob.toFixed(2)}px`}
+>
+  <div class="gr" style={`--gx:${CX}px;--gy:344px;--gs:.74;--gi:1`}>
+    <div class="pool"></div>
+    <div class="mesh"></div>
+    <div class="survey"></div>
+    <div class="shd"></div>
+  </div>
+
+  <div class="iso">
+    {
+      plates.map((plate, i) => (
+        <div
+          class="slab"
+          style={`--ze:${plate.ze}px;--zs:${plate.zs}px;--delay:${(0.3 + i * 0.12).toFixed(2)}s`}
+        >
+          <div class="face emit" />
+          <div class="face f-top">
+            {i === lid && (
+              <>
+                <div class="dial" />
+                <div class="lid">
+                  <img class="mark" src="/logos/fnnx.svg" alt="" width="86" height="86" />
+                  <span class="name">MODEL.FNNX</span>
+                </div>
+                <div class="sweep" />
+              </>
+            )}
+          </div>
+          <div class="face f-l" />
+          <div class="face f-f" />
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="callouts">
+    {
+      plates.map((plate, i) => (
+        <div
+          class="co"
+          style={`--x:${calloutX.toFixed(1)}px;--y:${(CY - plate.ze * rise).toFixed(1)}px;--delay:${(1.05 + i * 0.1).toFixed(2)}s`}
+        >
+          <span class="n">{plate.index}</span>
+          <span class="t">{plate.label}</span>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  /* --W (top-face size), --cx/--cy, --s and --bob are set inline from the
+     frontmatter constants the callout geometry is solved against. */
+  .v-fnnx {
+    --T: 30px;
+
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+  }
+
+  .iso {
+    position: absolute;
+    left: var(--cx);
+    top: var(--cy);
+    width: var(--W);
+    height: var(--W);
+    margin-left: calc(var(--W) / -2);
+    margin-top: calc(var(--W) / -2);
+    transform-style: preserve-3d;
+    transform: scale(var(--s)) rotateX(54deg) rotateZ(-45deg);
+    animation: fnnxFloat 10s ease-in-out infinite alternate;
+  }
+
+  @keyframes fnnxFloat {
+    from {
+      transform: scale(var(--s)) rotateX(54deg) rotateZ(-45deg) translateZ(-5px);
+    }
+    to {
+      transform: scale(var(--s)) rotateX(54deg) rotateZ(-45deg) translateZ(5px);
+    }
+  }
+
+  /* Resting state is the exploded stack; the dock animation only supplies the arrival. */
+  .slab {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transform: translateZ(var(--ze));
+    transition: transform 0.9s cubic-bezier(0.62, 0, 0.2, 1);
+    animation: fnnxDock 1.15s cubic-bezier(0.16, 1, 0.3, 1) var(--delay) backwards;
+  }
+
+  @keyframes fnnxDock {
+    from {
+      transform: translateZ(calc(var(--ze) + 520px));
+    }
+  }
+
+  .v-fnnx.sealed .slab {
+    transform: translateZ(var(--zs));
+  }
+
+  .face {
+    position: absolute;
+    animation: fnnxFaceIn 0.9s ease var(--delay) backwards;
+  }
+
+  @keyframes fnnxFaceIn {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* Key light rakes the far edges of each plate; warm bounce fills the near corner. */
+  .f-top {
+    inset: 0;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-top-color: rgba(255, 255, 255, 0.34);
+    border-right-color: rgba(255, 255, 255, 0.24);
+    background:
+      radial-gradient(78% 78% at 96% 4%, rgba(255, 255, 255, 0.17), transparent 52%),
+      radial-gradient(120% 120% at 0% 100%, rgba(255, 117, 0, 0.17), transparent 48%),
+      linear-gradient(45deg, #060708 0%, #0d0f12 34%, #191d21 68%, #2b3036 100%);
+    box-shadow: inset -30px -30px 70px -30px rgba(0, 0, 0, 0.85);
+  }
+
+  .f-l,
+  .f-f {
+    left: 0;
+    top: 0;
+    width: var(--W);
+    height: var(--T);
+    transform-origin: 0 0;
+  }
+
+  .f-f {
+    transform: translateY(var(--W)) rotateX(-90deg);
+    background: linear-gradient(180deg, #191d21 0%, #090a0c 72%, #0d0e10 100%);
+    border-top: 1px solid rgba(255, 158, 74, 0.85);
+    box-shadow:
+      inset 0 14px 22px -14px rgba(255, 117, 0, 0.85),
+      inset 0 -1px 0 rgba(255, 117, 0, 0.16),
+      0 0 22px -4px rgba(255, 117, 0, 0.28);
+  }
+
+  .f-l {
+    transform: rotateZ(90deg) rotateX(-90deg);
+    background: linear-gradient(180deg, #0f1114 0%, #060708 78%, #08090b 100%);
+    border-top: 1px solid rgba(255, 117, 0, 0.46);
+    box-shadow:
+      inset 0 14px 22px -16px rgba(255, 117, 0, 0.5),
+      inset 0 -1px 0 rgba(255, 117, 0, 0.09),
+      0 0 18px -6px rgba(255, 117, 0, 0.18);
+  }
+
+  /* Light bleeding out of the seam under every plate. */
+  .emit {
+    left: -42px;
+    top: -42px;
+    width: 354px;
+    height: 354px;
+    transform: translateZ(calc(-1 * var(--T) - 5px));
+    filter: blur(14px);
+    background: radial-gradient(
+      closest-side,
+      rgba(255, 117, 0, 0.32),
+      rgba(255, 117, 0, 0.05) 58%,
+      transparent 72%
+    );
+  }
+
+  /*
+   * The engraving is rotated back out of the iso grid so it faces the camera.
+   * `align-content` is what keeps it centred: without it the two auto rows
+   * stretch across the whole lid and the mark drifts into the upper quarter of
+   * the dial instead of sitting in its middle.
+   */
+  .lid {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 10px;
+    text-align: center;
+    transform: rotateZ(45deg);
+  }
+
+  .lid .mark {
+    width: 86px;
+    height: 86px;
+    opacity: 0.95;
+    filter: drop-shadow(0 0 18px rgba(255, 117, 0, 0.6));
+  }
+
+  .lid .name {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.34em;
+    text-indent: 0.34em;
+    color: rgba(255, 255, 255, 0.44);
+  }
+
+  .dial {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 176px;
+    height: 176px;
+    margin: -88px 0 0 -88px;
+    border: 1px solid rgba(255, 117, 0, 0.2);
+    border-radius: 50%;
+  }
+
+  .dial::after {
+    content: "";
+    position: absolute;
+    inset: 15px;
+    border: 1px dashed rgba(255, 255, 255, 0.06);
+    border-radius: 50%;
+  }
+
+  .sweep {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      118deg,
+      transparent 40%,
+      rgba(255, 255, 255, 0.09) 48%,
+      rgba(255, 190, 130, 0.1) 53%,
+      transparent 62%
+    );
+    background-size: 300% 300%;
+    animation: fnnxSweep 11s ease-in-out 3s infinite;
+  }
+
+  @keyframes fnnxSweep {
+    0% {
+      background-position: 130% 0;
+    }
+    34% {
+      background-position: -45% 0;
+    }
+    100% {
+      background-position: -45% 0;
+    }
+  }
+
+  /* The labels ride the same 10s bob as the stack they point at. */
+  .callouts {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    animation: fnnxDrift 10s ease-in-out infinite alternate;
+  }
+
+  @keyframes fnnxDrift {
+    from {
+      transform: translateY(var(--bob));
+    }
+    to {
+      transform: translateY(calc(-1 * var(--bob)));
+    }
+  }
+
+  /* Leader line: hairline off the plate's east corner, glowing dot, mono label. */
+  .co {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 22px;
+    padding-left: 48px;
+    white-space: nowrap;
+    transform: translateY(-50%);
+    transition:
+      opacity 0.4s ease,
+      transform 0.4s ease;
+    animation: fnnxCalloutIn 0.65s ease var(--delay) backwards;
+  }
+
+  @keyframes fnnxCalloutIn {
+    from {
+      opacity: 0;
+      transform: translate(-14px, -50%);
+    }
+  }
+
+  .co::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 34px;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255, 117, 0, 0.9), rgba(255, 117, 0, 0.22));
+  }
+
+  .co::after {
+    content: "";
+    position: absolute;
+    left: 31px;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    margin-top: -3px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 10px 1px rgba(255, 117, 0, 0.9);
+  }
+
+  .co .n {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--color-accent);
+  }
+
+  .co .t {
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    color: #c6cbd0;
+  }
+
+  /* Sealing the artifact makes it one object, so the part labels leave with it. */
+  .v-fnnx.sealed .co {
+    opacity: 0;
+    transform: translate(-12px, -50%);
+  }
+</style>
+
+<script>
+  const artifact = document.getElementById('fnnxViz');
+
+  // FNNX keeps its signature move: click to seal the stack shut.
+  artifact?.addEventListener('click', () => artifact.classList.toggle('sealed'));
+</script>

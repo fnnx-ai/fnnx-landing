@@ -1,0 +1,356 @@
+---
+/**
+ * Slide 03 — "one line of code trains a model to a good score".
+ *
+ * The line types itself, a hairline drops from it onto the plinth, and the
+ * training curve leaves the plate's right vertex — the bright end of its rim
+ * light — so the reveal reads snippet → model → score in one pass.
+ *
+ * CURVE samples y = 1 - e^(-2t) between that vertex and the terminus, which is
+ * why it lifts at 59° and lands at 13°: a real saturating curve rather than an
+ * arc. LENGTH is its measured arc length; the stroke reveals itself by
+ * shrinking a dash of that length to zero while a zero-length dash on the same
+ * path rides the drawing edge, so the head can never drift off the curve.
+ */
+const CURVE = 'M310 252 C341.5 198.6 373 168 404.5 146.3 C443 119.7 481.5 106.8 520 98';
+const LENGTH = 269;
+const ORIGIN = { x: 310, y: 252 } as const;
+const END = { x: 520, y: 98 } as const;
+---
+
+<div class="v-fal">
+  <div class="gr" style="--gx:200px;--gy:322px;--gs:.62;--gi:1">
+    <div class="pool"></div>
+    <div class="mesh"></div>
+    <div class="survey"></div>
+    <div class="shd"></div>
+  </div>
+  <div class="glow" style="--ex:200px;--ey:288px;--ew:220px;--ei:.32"></div>
+
+  <div class="pl" style="--cx:200px;--cy:252px;--pw:156px;--pt:24px;--rim:.9">
+    <div class="fr"></div>
+    <div class="lf"></div>
+    <div class="top">
+      <div class="face-in">
+        <img src="/logos/falcon.svg" alt="" width="46" height="46" />
+      </div>
+    </div>
+  </div>
+
+  <!-- The rim light pooling at the vertex the run leaves from. -->
+  <div class="glow ign" style="--ex:310px;--ey:252px;--ew:128px;--ei:.4"></div>
+
+  <svg class="curve" viewBox="0 0 600 356" aria-hidden="true">
+    <defs>
+      <linearGradient id="falcon-stroke" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#ff7500" stop-opacity=".55"></stop>
+        <stop offset=".5" stop-color="#ff8a24"></stop>
+        <stop offset="1" stop-color="#ffcb9a"></stop>
+      </linearGradient>
+      <!--
+        Blur regions are in user space rather than bounding-box percentages: a
+        bbox ignores stroke width, and the bloom below is wide enough that the
+        default region would clip it. They cover CURVE and must follow it.
+      -->
+      <filter id="falcon-blur" filterUnits="userSpaceOnUse" x="250" y="20" width="350" height="336">
+        <feGaussianBlur stdDeviation="7"></feGaussianBlur>
+      </filter>
+      <filter id="falcon-soft" filterUnits="userSpaceOnUse" x="180" y="0" width="420" height="356">
+        <feGaussianBlur stdDeviation="20"></feGaussianBlur>
+      </filter>
+    </defs>
+
+    <!--
+      The area glow is the run itself, blurred wide and dropped 34px, so its
+      weight sits under the curve and reaches the plinth. Drawn as a stroke it
+      rides the same dash reveal as the line, so the fill can never outrun it —
+      and it has no polygon edge to give itself away.
+    -->
+    <path
+      class="draw bloom"
+      d={CURVE}
+      transform="translate(0 34)"
+      fill="none"
+      stroke="#ff7500"
+      stroke-width="54"
+      stroke-linecap="round"
+      opacity=".3"
+      filter="url(#falcon-soft)"
+      style={`--len:${LENGTH}px`}></path>
+    <path
+      class="draw halo"
+      d={CURVE}
+      fill="none"
+      stroke="#ff7500"
+      stroke-width="9"
+      stroke-linecap="round"
+      opacity=".5"
+      filter="url(#falcon-blur)"
+      style={`--len:${LENGTH}px`}></path>
+    <path
+      class="draw line"
+      d={CURVE}
+      fill="none"
+      stroke="url(#falcon-stroke)"
+      stroke-width="3.2"
+      stroke-linecap="round"
+      style={`--len:${LENGTH}px`}></path>
+    <path
+      class="head"
+      d={CURVE}
+      fill="none"
+      stroke="#fff3e6"
+      stroke-width="10"
+      stroke-linecap="round"
+      style={`--len:${LENGTH}px`}></path>
+  </svg>
+
+  <span class="spark" style={`left:${ORIGIN.x}px;top:${ORIGIN.y}px`}></span>
+  <span class="term" style={`left:${END.x}px;top:${END.y}px`}></span>
+  <span class="dot" style={`left:${END.x}px;top:${END.y}px`}></span>
+  <p class="score" style={`left:${END.x}px`}>val_acc <b>0.94</b></p>
+
+  <span class="drop" style="--x:200px;--y:50px;--h:137px"></span>
+
+  <div class="code">
+    <span class="ln"
+      ><span class="k">AutoML</span>(task=<span class="s">"tabular_classification"</span>,
+      train_data=<span class="s">df</span>)</span
+    >
+    <i class="caret"></i>
+  </div>
+</div>
+
+<style>
+  .v-fal {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* ---------------- the one line ---------------- */
+  .code {
+    position: absolute;
+    left: 16px;
+    top: 14px;
+    display: inline-flex;
+    align-items: center;
+    padding: 9px 13px;
+    border: 1px solid var(--color-line);
+    border-radius: 7px;
+    background: rgba(11, 13, 15, 0.94);
+    box-shadow:
+      0 16px 36px -20px rgba(0, 0, 0, 1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 17px;
+    letter-spacing: 0;
+    white-space: nowrap;
+    color: var(--color-muted);
+  }
+
+  /*
+   * One `ch` is one glyph in a mono face, so a step per character types the
+   * line; the spare 2px keeps a fallback face with a rounded advance from
+   * shaving the closing paren.
+   */
+  .ln {
+    overflow: hidden;
+    width: calc(52ch + 2px);
+    animation: falcon-type 1s steps(52) 0.12s backwards;
+  }
+
+  @keyframes falcon-type {
+    from {
+      width: 0;
+    }
+  }
+
+  .code .k {
+    color: var(--color-accent-soft);
+  }
+
+  .code .s {
+    color: #dfe2e5;
+  }
+
+  .caret {
+    flex: none;
+    width: 6px;
+    height: 14px;
+    margin-left: 6px;
+    background: var(--color-accent);
+    animation: falcon-blink 1.1s steps(1) infinite;
+  }
+
+  @keyframes falcon-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  /*
+   * The one cue tying the line to the model. It falls straight down onto the
+   * plate's top vertex because vertical is the projection's own up-axis — any
+   * other angle reads as a stray diagonal across the isometric grid.
+   */
+  .drop {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: 1px;
+    height: var(--h);
+    transform-origin: 50% 0;
+    background: linear-gradient(180deg, rgba(255, 117, 0, 0.04), rgba(255, 168, 90, 0.62));
+    animation: falcon-drop 0.45s ease-out 1s backwards;
+  }
+
+  @keyframes falcon-drop {
+    from {
+      transform: scaleY(0);
+    }
+  }
+
+  .ign {
+    animation: falcon-fade 0.6s ease 1.15s backwards;
+  }
+
+  /* ---------------- the run ---------------- */
+  .curve {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 600px;
+    height: 356px;
+    overflow: visible;
+  }
+
+  /* Fully drawn is the resting state; the animation only supplies the reveal. */
+  .draw {
+    stroke-dasharray: var(--len);
+    stroke-dashoffset: 0;
+    animation: falcon-draw 1.5s cubic-bezier(0.35, 0.1, 0.2, 1) 1.25s backwards;
+  }
+
+  @keyframes falcon-draw {
+    from {
+      stroke-dashoffset: var(--len);
+    }
+  }
+
+  /* A zero-length dash: one round cap riding the same path at the same rate. */
+  .head {
+    stroke-dasharray: 0.01 4000;
+    stroke-dashoffset: calc(var(--len) * -1);
+    filter: drop-shadow(0 0 7px rgba(255, 150, 50, 0.95))
+      drop-shadow(0 0 18px rgba(255, 117, 0, 0.7));
+    /* Without the fade it sits parked on the vertex, a stray dot before the run. */
+    animation:
+      falcon-head 1.5s cubic-bezier(0.35, 0.1, 0.2, 1) 1.25s backwards,
+      falcon-fade 0.3s ease 1.25s backwards;
+  }
+
+  @keyframes falcon-head {
+    from {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes falcon-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  .spark {
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    margin: -4.5px 0 0 -4.5px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff2e4, var(--color-accent) 55%, rgba(255, 117, 0, 0) 76%);
+    box-shadow: 0 0 18px 5px rgba(255, 117, 0, 0.65);
+    animation:
+      falcon-fade 0.5s ease 1.1s backwards,
+      falcon-spark 2.8s ease-in-out 1.6s infinite;
+  }
+
+  @keyframes falcon-spark {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.9;
+    }
+    50% {
+      transform: scale(1.28);
+      opacity: 1;
+    }
+  }
+
+  /* ---------------- the score ---------------- */
+  .term {
+    position: absolute;
+    width: 42px;
+    height: 42px;
+    margin: -21px 0 0 -21px;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(255, 150, 50, 0.5), transparent 70%);
+    animation:
+      falcon-fade 0.55s ease 2.68s backwards,
+      falcon-breathe 3.2s ease-in-out 3.2s infinite;
+  }
+
+  @keyframes falcon-breathe {
+    0%,
+    100% {
+      transform: scale(0.85);
+      opacity: 0.8;
+    }
+    50% {
+      transform: scale(1.25);
+      opacity: 1;
+    }
+  }
+
+  .dot {
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    margin: -4.5px 0 0 -4.5px;
+    border-radius: 50%;
+    background: #fff3e6;
+    box-shadow: 0 0 12px 3px rgba(255, 140, 30, 0.85);
+    animation: falcon-pop 0.45s cubic-bezier(0.2, 1.35, 0.4, 1) 2.68s backwards;
+  }
+
+  @keyframes falcon-pop {
+    from {
+      opacity: 0;
+      transform: scale(0.2);
+    }
+  }
+
+  .score {
+    position: absolute;
+    top: 58px;
+    transform: translateX(-50%);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    color: #c6cbd0;
+    animation: falcon-score 0.6s ease 2.82s backwards;
+  }
+
+  .score b {
+    font-weight: 620;
+    color: var(--color-accent-soft);
+  }
+
+  @keyframes falcon-score {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(8px);
+    }
+  }
+</style>

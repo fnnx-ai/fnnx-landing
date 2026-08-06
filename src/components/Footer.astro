@@ -1,0 +1,99 @@
+---
+---
+
+<footer>
+  <div class="wrap ft">
+    <div class="ft-l">
+      <img class="mark" src="/logos/fnnx.svg" alt="" width="24" height="24" />
+      <span class="wordmark">fnnx.ai</span>
+      <span class="license">MIT License</span>
+      <span class="license">formerly beastbyte.ai</span>
+    </div>
+    <div class="ft-r">
+      <a href="https://github.com/BeastByteAI">GitHub <span aria-hidden="true">&#8599;</span></a>
+      <a href="https://discord.com/invite/YDAbwuWK7V">
+        Discord <span aria-hidden="true">&#8599;</span>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  footer {
+    border-top: 1px solid var(--color-line-soft);
+    background: linear-gradient(180deg, transparent, rgba(255, 117, 0, 0.025));
+  }
+
+  .ft {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding-top: 34px;
+    padding-bottom: 34px;
+  }
+
+  .ft-l {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mark {
+    display: block;
+    width: 24px;
+    height: 24px;
+    opacity: 0.92;
+  }
+
+  .wordmark {
+    font-family: var(--font-mono);
+    font-size: 14.5px;
+    font-weight: 550;
+    letter-spacing: 0.04em;
+    color: var(--color-ink);
+  }
+
+  .license {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+  }
+
+  .ft-r {
+    display: flex;
+    gap: 8px;
+  }
+
+  .ft-r a {
+    padding: 7px 11px;
+    border-radius: 5px;
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    letter-spacing: 0.06em;
+    color: var(--color-body);
+    transition:
+      color 0.2s,
+      background 0.2s;
+  }
+
+  .ft-r a:hover {
+    color: var(--color-accent-soft);
+    background: rgba(255, 117, 0, 0.07);
+  }
+
+  @media (max-width: 659px) {
+    .ft {
+      gap: 14px;
+      padding-top: 24px;
+      padding-bottom: 24px;
+    }
+
+    .ft-r {
+      margin-left: -10px;
+    }
+  }
+</style>

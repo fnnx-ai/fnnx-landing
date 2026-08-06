@@ -1,0 +1,278 @@
+---
+/**
+ * Slide 04 — "a minimal deep learning framework".
+ *
+ * The network grows out of the plinth rather than hovering over it: every
+ * bottom edge starts at a lit socket on the plate's top face, behind the mark,
+ * and climbs through two hidden layers into a single output. One charge runs
+ * the route from plate to output and rests there.
+ *
+ * Coordinates are in the 600x356 design space. The plate is a square rotated
+ * rotateX(54deg) rotateZ(-45deg), so its top face reaches cx +- 0.707*pw
+ * horizontally and cy +- 0.416*pw vertically; sockets must sit inside that
+ * diamond for the graph to read as rooted in the surface.
+ */
+type Pt = { readonly x: number; readonly y: number };
+
+const PLATE = { cx: 300, cy: 258, pw: 148 } as const;
+
+/**
+ * Contact points on the top face, spread across its depth so the graph stands
+ * in the surface rather than in front of it. All three clear the mark.
+ */
+const SA = { x: 244, y: 250 } as const;
+const SB = { x: 301, y: 216 } as const;
+const SC = { x: 358, y: 246 } as const;
+
+/* Two hidden layers and one output, each band narrower and closer than the one
+   below it, so the graph tapers off the plate like a flame off its source. */
+const A1 = { x: 258, y: 176 } as const;
+const A2 = { x: 348, y: 164 } as const;
+const B1 = { x: 274, y: 110 } as const;
+const B2 = { x: 352, y: 100 } as const;
+const OUT = { x: 318, y: 54 } as const;
+
+const distance = (a: Pt, b: Pt): number => Math.hypot(b.x - a.x, b.y - a.y);
+
+/** The far socket pool is drawn smaller: it sits deeper in the surface. */
+const sockets = [
+  { ...SA, rx: 21, delay: '0.1s' },
+  { ...SB, rx: 17, delay: '0.14s' },
+  { ...SC, rx: 21, delay: '0.18s' },
+] as const;
+
+const nodes = [
+  { ...A1, r: 5, delay: '0.5s', out: false },
+  { ...A2, r: 5, delay: '0.54s', out: false },
+  { ...B1, r: 5, delay: '0.72s', out: false },
+  { ...B2, r: 5, delay: '0.76s', out: false },
+  { ...OUT, r: 6.5, delay: '0.94s', out: true },
+] as const;
+
+/* Layers weave rather than outline: crossing edges are what make a graph read
+   as a network. One base edge is missing on purpose, so it never mirrors. */
+const edges = [
+  { from: SA, to: A1, delay: '0.2s', root: true },
+  { from: SA, to: A2, delay: '0.3s', root: true },
+  { from: SB, to: A1, delay: '0.24s', root: true },
+  { from: SB, to: A2, delay: '0.28s', root: true },
+  { from: SC, to: A2, delay: '0.22s', root: true },
+  { from: A1, to: B1, delay: '0.54s', root: false },
+  { from: A1, to: B2, delay: '0.6s', root: false },
+  { from: A2, to: B1, delay: '0.58s', root: false },
+  { from: A2, to: B2, delay: '0.56s', root: false },
+  { from: B1, to: OUT, delay: '0.76s', root: false },
+  { from: B2, to: OUT, delay: '0.8s', root: false },
+] as const;
+
+const ROUTE = [SA, A2, B1, OUT] as const;
+const ROUTE_D = ROUTE.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x} ${p.y}`).join(' ');
+const ROUTE_LEN = ROUTE.slice(1).reduce((sum, p, i) => sum + distance(ROUTE[i], p), 0);
+---
+
+<div class="v-ff">
+  <div class="gr" style="--gx:300px;--gy:330px;--gs:.68;--gi:.9">
+    <div class="pool"></div>
+    <div class="mesh"></div>
+    <div class="survey"></div>
+    <div class="shd"></div>
+  </div>
+
+  <!-- One column of light over plate and graph together, so they share a body. -->
+  <div class="halo"></div>
+  <div class="glow" style="--ex:300px;--ey:224px;--ew:270px;--ei:.26"></div>
+
+  <div
+    class="pl"
+    style={`--cx:${PLATE.cx}px;--cy:${PLATE.cy}px;--pw:${PLATE.pw}px;--pt:24px;--rim:.9`}
+  >
+    <div class="fr"></div>
+    <div class="lf"></div>
+    <div class="top">
+      <div class="face-in">
+        <img src="/logos/firefly.svg" alt="" width="48" height="48" />
+      </div>
+    </div>
+  </div>
+
+  <svg class="net" viewBox="0 0 600 356" aria-hidden="true">
+    <defs>
+      <linearGradient id="ff-edge" gradientUnits="userSpaceOnUse" x1="0" y1="248" x2="0" y2="56">
+        <stop offset="0" stop-color="#ffa257" stop-opacity=".68"></stop>
+        <stop offset=".5" stop-color="#ff9040" stop-opacity=".44"></stop>
+        <stop offset="1" stop-color="#ffb478" stop-opacity=".42"></stop>
+      </linearGradient>
+      <radialGradient id="ff-socket">
+        <stop offset="0" stop-color="#ffd7ac" stop-opacity=".85"></stop>
+        <stop offset=".32" stop-color="#ff8a24" stop-opacity=".38"></stop>
+        <stop offset="1" stop-color="#ff7500" stop-opacity="0"></stop>
+      </radialGradient>
+    </defs>
+
+    {/* Light spilling onto the top face where the edges leave it. rx:ry is the
+        plate's own foreshortening, so each pool lies flat in the surface. */}
+    {
+      sockets.map((socket) => (
+        <ellipse
+          class="socket"
+          cx={socket.x}
+          cy={socket.y}
+          rx={socket.rx}
+          ry={(socket.rx * 0.588).toFixed(1)}
+          fill="url(#ff-socket)"
+          style={`--delay:${socket.delay}`}
+        />
+      ))
+    }
+
+    {
+      edges.map((edge) => (
+        <line
+          class:list={['edge', { root: edge.root }]}
+          x1={edge.from.x}
+          y1={edge.from.y}
+          x2={edge.to.x}
+          y2={edge.to.y}
+          stroke="url(#ff-edge)"
+          style={`--len:${distance(edge.from, edge.to).toFixed(1)}px;--delay:${edge.delay}`}
+        />
+      ))
+    }
+
+    <path
+      class="charge"
+      d={ROUTE_D}
+      fill="none"
+      stroke="#fff3e4"
+      stroke-width="8.5"
+      stroke-linecap="round"
+      style={`--len:${ROUTE_LEN.toFixed(1)}px;--dash:${(ROUTE_LEN * 2).toFixed(1)}px`}></path>
+  </svg>
+
+  {
+    nodes.map((node) => (
+      <span
+        class:list={['node', { out: node.out }]}
+        style={`left:${node.x}px;top:${node.y}px;--r:${node.r}px;--delay:${node.delay}`}
+      />
+    ))
+  }
+</div>
+
+<style>
+  .v-ff {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Binds plate and graph into one lit body instead of two stacked objects. */
+  .halo {
+    position: absolute;
+    left: 305px;
+    top: 168px;
+    width: 300px;
+    height: 300px;
+    margin: -150px 0 0 -150px;
+    filter: blur(22px);
+    background: radial-gradient(closest-side, rgba(255, 117, 0, 0.14), transparent 72%);
+  }
+
+  .net {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 600px;
+    height: 356px;
+    overflow: visible;
+  }
+
+  .socket {
+    animation: ffSocketIn 0.7s ease var(--delay) backwards;
+  }
+
+  @keyframes ffSocketIn {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* Drawn is the resting state; the animation only supplies the growth, bottom
+     up, so the graph reads as rising out of the plate. */
+  .edge {
+    stroke-width: 1;
+    stroke-dasharray: var(--len);
+    stroke-dashoffset: 0;
+    animation: ffGrow 0.75s cubic-bezier(0.22, 1, 0.36, 1) var(--delay) backwards;
+  }
+
+  .edge.root {
+    stroke-width: 1.4;
+  }
+
+  @keyframes ffGrow {
+    from {
+      stroke-dashoffset: var(--len);
+    }
+  }
+
+  .node {
+    position: absolute;
+    width: calc(var(--r) * 2);
+    height: calc(var(--r) * 2);
+    margin: calc(var(--r) * -1) 0 0 calc(var(--r) * -1);
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      #fff6ec,
+      #ffbb78 44%,
+      rgba(255, 117, 0, 0.24) 74%,
+      transparent 80%
+    );
+    box-shadow:
+      0 0 13px 3px rgba(255, 140, 30, 0.5),
+      0 0 32px 9px rgba(255, 117, 0, 0.15);
+    animation: ffNodeIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) var(--delay) backwards;
+  }
+
+  .node.out {
+    box-shadow:
+      0 0 18px 4px rgba(255, 150, 45, 0.62),
+      0 0 44px 14px rgba(255, 117, 0, 0.2);
+  }
+
+  @keyframes ffNodeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.3);
+    }
+  }
+
+  /* A zero-length dash riding the route: one charge from the plate to the
+     output, which is also where it rests when motion is off. */
+  .charge {
+    stroke-dasharray: 0.01 var(--dash);
+    stroke-dashoffset: calc(var(--len) * -1);
+    filter: drop-shadow(0 0 7px rgba(255, 150, 50, 0.95))
+      drop-shadow(0 0 18px rgba(255, 117, 0, 0.65));
+    animation: ffCharge 4.6s cubic-bezier(0.5, 0, 0.5, 1) 1.5s infinite;
+  }
+
+  @keyframes ffCharge {
+    0% {
+      stroke-dashoffset: 0;
+      opacity: 0;
+    }
+    8% {
+      opacity: 1;
+    }
+    58% {
+      stroke-dashoffset: calc(var(--len) * -1);
+      opacity: 1;
+    }
+    76%,
+    100% {
+      stroke-dashoffset: calc(var(--len) * -1);
+      opacity: 0;
+    }
+  }
+</style>
