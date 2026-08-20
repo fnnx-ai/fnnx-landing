@@ -1,0 +1,46 @@
+---
+import { formatStars } from '../lib/stars';
+
+interface Props {
+  repo: string;
+  fallbackStars: number;
+}
+
+const { repo, fallbackStars } = Astro.props;
+---
+
+<span class="stars">
+  <i aria-hidden="true">★</i>
+  <span data-stars={repo}>{formatStars(fallbackStars)}</span>
+  <span class="sr-only">GitHub stars</span>
+</span>
+
+<style>
+  .stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-body);
+  }
+
+  .stars i {
+    font-style: normal;
+    color: var(--color-accent);
+    text-shadow: 0 0 10px rgba(255, 117, 0, 0.7);
+  }
+</style>
+
+<script>
+  import { fetchStars, formatStars } from '../lib/stars';
+
+  for (const el of document.querySelectorAll<HTMLElement>('[data-stars]')) {
+    const repo = el.dataset.stars;
+    if (!repo) continue;
+
+    fetchStars(repo).then((count) => {
+      if (count !== null) el.textContent = formatStars(count);
+    });
+  }
+</script>

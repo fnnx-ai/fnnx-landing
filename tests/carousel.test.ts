@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  SLIDE_DWELL_MS,
-  dwellSeconds,
-  parseSlideOverride,
-  stepIndex,
-  wrapIndex,
-} from '../src/lib/carousel';
+import { dwellSeconds, parseSlideOverride, stepIndex, wrapIndex } from '../src/lib/carousel';
 
 describe('wrapIndex', () => {
   it('passes through in-range indices', () => {
@@ -39,13 +33,8 @@ describe('stepIndex', () => {
 
 describe('dwellSeconds', () => {
   it('gives the lead slide the longer dwell', () => {
-    expect(dwellSeconds(0)).toBe(9.5);
-    expect(dwellSeconds(1)).toBe(7);
-    expect(dwellSeconds(SLIDE_DWELL_MS.length - 1)).toBe(7);
-  });
-
-  it('falls back for indices outside the schedule', () => {
-    expect(dwellSeconds(99)).toBe(7);
+    expect(dwellSeconds(true)).toBe(9.5);
+    expect(dwellSeconds(false)).toBe(7);
   });
 });
 

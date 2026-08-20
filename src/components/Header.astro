@@ -1,4 +1,5 @@
 ---
+import { GITHUB_ORG } from '../lib/projects';
 ---
 
 <header class="hdr">
@@ -8,8 +9,9 @@
       <span class="wordmark">fnnx.ai</span>
     </a>
     <nav class="nav" aria-label="Primary">
-      <a href="https://discord.com/invite/YDAbwuWK7V">Discord</a>
-      <a class="ghost" href="https://github.com/BeastByteAI">
+      <a class="page" href="#fnnx">FNNX</a>
+      <a class="page" href="#community">Community</a>
+      <a class="ghost" href={GITHUB_ORG}>
         GitHub <span aria-hidden="true">&#8599;</span>
       </a>
     </nav>
@@ -85,6 +87,13 @@
   .nav a.ghost:hover {
     border-color: rgba(255, 117, 0, 0.45);
     background: rgba(255, 117, 0, 0.08);
+  }
+
+  @media (max-width: 879px) {
+    /* The sections are one scroll away; the repo is not. */
+    .nav a.page {
+      display: none;
+    }
   }
 
   @media (max-width: 659px) {

@@ -1,5 +1,6 @@
 ---
 import Icon from './Icon.astro';
+import { GITHUB_ORG } from '../lib/projects';
 ---
 
 <section id="community" class="finale" aria-labelledby="finale-heading">
@@ -260,12 +261,12 @@ import Icon from './Icon.astro';
     </div>
 
     <div class="close">
-      <h3>The format is open. So is the room<span class="dot">.</span></h3>
+      <h3>Open source, and open to contributions<span class="dot">.</span></h3>
 
       <div class="cta">
-        <a class="btn btn-p" href="https://github.com/BeastByteAI">
+        <a class="btn btn-p" href={GITHUB_ORG}>
           <Icon name="github" class="h-[15px] w-[15px] shrink-0" />
-          Try the libraries
+          Browse the code
         </a>
         <a class="btn btn-s" href="https://discord.com/invite/YDAbwuWK7V">
           <Icon name="discord" class="h-[15px] w-[15px] shrink-0" />

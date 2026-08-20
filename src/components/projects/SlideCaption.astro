@@ -1,0 +1,162 @@
+---
+import StarCount from '../StarCount.astro';
+import { RELATIONS, repoUrl, slideLabel, type Project } from '../../lib/projects';
+
+interface Props {
+  project: Project;
+  index: number;
+  total: number;
+  nameId: string;
+}
+
+const { project, index, total, nameId } = Astro.props;
+---
+
+<div class="cap">
+  <div class="cap-top">
+    <span class="cap-ix">{slideLabel(index)} / {slideLabel(total - 1)}</span>
+    <span class="cap-rule" aria-hidden="true"></span>
+    <StarCount repo={project.repo} fallbackStars={project.fallbackStars} />
+  </div>
+
+  <div class="cap-name">
+    <img src={project.logo} alt="" width="24" height="24" />
+    <h3 id={nameId}>{project.name}</h3>
+  </div>
+
+  <p class="cap-sub">{project.tagline}</p>
+
+  <p class="cap-rel">
+    {
+      project.relations.map((id) => (
+        <span>
+          <i aria-hidden="true">{RELATIONS[id].glyph}</i>
+          {RELATIONS[id].label}
+        </span>
+      ))
+    }
+  </p>
+
+  <a class="cap-link" href={repoUrl(project)}>
+    View on GitHub <span aria-hidden="true">→</span>
+  </a>
+</div>
+
+<style>
+  /* Identical geometry on every slide, so nothing jumps as the carousel turns. */
+  .cap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 176px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cap-top {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 20px;
+  }
+
+  .cap-ix {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.16em;
+    color: var(--color-accent);
+  }
+
+  .cap-rule {
+    flex: 1 1 auto;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 117, 0, 0.3),
+      var(--color-line-soft) 44%,
+      var(--color-line-soft)
+    );
+  }
+
+  .cap-name {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-top: 15px;
+  }
+
+  .cap-name img {
+    width: 24px;
+    height: 24px;
+    filter: drop-shadow(0 0 9px rgba(255, 117, 0, 0.35));
+  }
+
+  .cap-name h3 {
+    font-size: 25px;
+    font-weight: 640;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  .cap-sub {
+    margin-top: 9px;
+    max-width: 46ch;
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  .cap-rel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin-top: 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    color: var(--color-muted);
+  }
+
+  .cap-rel i {
+    padding-right: 7px;
+    font-style: normal;
+    color: var(--color-accent);
+  }
+
+  .cap-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    width: fit-content;
+    padding-bottom: 3px;
+    border-bottom: 1px solid rgba(255, 117, 0, 0.28);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: var(--color-accent-soft);
+    transition:
+      color 0.2s,
+      border-color 0.2s;
+  }
+
+  .cap-link:hover {
+    color: #ffbe80;
+    border-color: rgba(255, 117, 0, 0.7);
+  }
+
+  @media (max-width: 659px) {
+    .cap {
+      height: 196px;
+    }
+
+    .cap-name h3 {
+      font-size: 22px;
+    }
+
+    .cap-sub {
+      font-size: 15px;
+    }
+  }
+</style>

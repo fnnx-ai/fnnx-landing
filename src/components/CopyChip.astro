@@ -1,0 +1,117 @@
+---
+interface Props {
+  command: string;
+}
+
+const { command } = Astro.props;
+---
+
+<button class="chip" type="button" data-copy={command}>
+  <span class="p" aria-hidden="true">$</span>
+  <span class="txt">{command}</span>
+  <span class="st" aria-live="polite">copy</span>
+</button>
+
+<style>
+  /* Click-to-copy install line: a bordered mono pill, legible with or without JS. */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 48px;
+    padding: 0 18px;
+    border: 1px solid var(--color-line);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.02);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--color-ink);
+    cursor: pointer;
+    transition:
+      transform 0.18s,
+      background 0.25s,
+      border-color 0.25s;
+  }
+
+  .chip:hover {
+    border-color: rgba(255, 117, 0, 0.45);
+    background: rgba(255, 117, 0, 0.07);
+    transform: translateY(-1px);
+  }
+
+  .chip:focus-visible {
+    outline: 1px solid rgba(255, 161, 77, 0.6);
+    outline-offset: 2px;
+  }
+
+  .chip .p {
+    color: var(--color-accent);
+  }
+
+  .chip .st {
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    transition: color 0.2s;
+  }
+
+  .chip:hover .st,
+  .chip[data-copied] .st {
+    color: var(--color-accent-soft);
+  }
+
+  .chip[data-copied] {
+    border-color: rgba(255, 117, 0, 0.55);
+    background: rgba(255, 117, 0, 0.09);
+  }
+
+  @media (max-width: 659px) {
+    .chip {
+      height: 46px;
+      padding: 0 14px;
+    }
+  }
+</style>
+
+<script>
+  const copy = async (text: string): Promise<boolean> => {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      // The clipboard API needs a secure context; fall back to a throwaway selection.
+      const field = document.createElement('textarea');
+      field.value = text;
+      field.setAttribute('readonly', '');
+      field.style.position = 'fixed';
+      field.style.opacity = '0';
+      document.body.append(field);
+      field.select();
+      const legacyCopy = (document as Document & { execCommand?: (command: string) => boolean })
+        .execCommand;
+      const copied = legacyCopy ? legacyCopy.call(document, 'copy') : false;
+      field.remove();
+      return copied;
+    }
+  };
+
+  for (const chip of document.querySelectorAll<HTMLButtonElement>('.chip[data-copy]')) {
+    const state = chip.querySelector<HTMLElement>('.st');
+    let reset = 0;
+
+    chip.addEventListener('click', async () => {
+      const copied = await copy(chip.dataset.copy ?? '');
+      if (!state) return;
+
+      state.textContent = copied ? 'copied' : 'copy failed';
+      chip.toggleAttribute('data-copied', copied);
+
+      window.clearTimeout(reset);
+      reset = window.setTimeout(() => {
+        state.textContent = 'copy';
+        chip.removeAttribute('data-copied');
+      }, 1800);
+    });
+  }
+</script>

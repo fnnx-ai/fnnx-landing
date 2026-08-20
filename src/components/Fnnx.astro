@@ -1,4 +1,5 @@
 ---
+import CopyChip from './CopyChip.astro';
 import {
   CODE_SLOTS,
   MEMBERS,
@@ -41,23 +42,35 @@ const targets = [
 const runSnippet = `from fnnx.runtime import Runtime
 
 Runtime("${ROOT}").compute(inputs, {})`;
+
+const INSTALL = 'pip install fnnx';
+const REPO = 'https://github.com/fnnx-ai/FNNX';
 ---
 
-<section
-  id="artifact"
-  class="inside"
-  style={`--slots:${CODE_SLOTS}`}
-  aria-labelledby="inside-heading"
->
+<section id="fnnx" class="inside" style={`--slots:${CODE_SLOTS}`} aria-labelledby="fnnx-heading">
   <div class="field" aria-hidden="true"></div>
 
   <div class="wrap sec">
     <div class="sec-head">
-      <h2 class="tag" id="inside-heading">Inside the artifact</h2>
+      <h2 class="tag" id="fnnx-heading">FNNX</h2>
       <span class="rule" aria-hidden="true"></span>
+      <p>Packaging · Runtime · Open spec</p>
     </div>
 
-    <h3 class="lede">A model is more than its weights<span class="dot">.</span></h3>
+    <div class="fnnx-head">
+      <div>
+        <h3 class="lede">A model is more than its weights<span class="dot">.</span></h3>
+        <p class="lede-sub">
+          Weights, graph, environment and metadata are packaged as one <b>.fnnx</b> artifact.
+          A runtime loads it on a server, in a notebook, in a browser, or at the edge.
+        </p>
+      </div>
+
+      <div class="fnnx-cta">
+        <CopyChip command={INSTALL} />
+        <a class="repo-link" href={REPO}>View on GitHub <span aria-hidden="true">&rarr;</span></a>
+      </div>
+    </div>
 
     <div class="shell">
       <div class="shell-glow" aria-hidden="true"></div>
@@ -181,7 +194,7 @@ Runtime("${ROOT}").compute(inputs, {})`;
             ))
           }
         </ul>
-        <a class="spec-link" href="https://github.com/BeastByteAI/FNNX/tree/main/spec">
+        <a class="spec-link" href={`${REPO}/tree/main/spec`}>
           Read the spec <span aria-hidden="true">&rarr;</span>
         </a>
       </div>
@@ -230,8 +243,61 @@ Runtime("${ROOT}").compute(inputs, {})`;
     z-index: 1;
   }
 
+  .fnnx-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 26px;
+    margin: -14px 0 34px;
+  }
+
+  .fnnx-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .repo-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.03em;
+    color: var(--color-accent-soft);
+    transition: color 0.2s;
+  }
+
+  .repo-link span {
+    transition: transform 0.2s;
+  }
+
+  .repo-link:hover {
+    color: var(--color-accent);
+  }
+
+  .repo-link:hover span {
+    transform: translateX(3px);
+  }
+
+  .lede-sub {
+    margin-top: 14px;
+    max-width: 54ch;
+    font-size: 16.5px;
+    line-height: 1.7;
+    color: var(--color-body);
+  }
+
+  .lede-sub b {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--color-ink);
+  }
+
   .lede {
-    margin: -14px 0 26px;
     font-size: clamp(26px, 2.5vw, 34px);
     font-weight: 620;
     line-height: 1.14;
@@ -867,8 +933,13 @@ Runtime("${ROOT}").compute(inputs, {})`;
   }
 
   @media (max-width: 659px) {
-    .lede {
-      margin: -4px 0 20px;
+    .fnnx-head {
+      margin: -4px 0 24px;
+      gap: 20px;
+    }
+
+    .lede-sub {
+      font-size: 15.5px;
     }
 
     .shell-bar {

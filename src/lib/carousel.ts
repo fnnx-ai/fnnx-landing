@@ -1,7 +1,9 @@
-/** Dwell time per slide, in milliseconds. FNNX leads and gets the longer read. */
-export const SLIDE_DWELL_MS: readonly number[] = [9500, 7000, 7000, 7000];
-
-const DEFAULT_DWELL_MS = 7000;
+/**
+ * Dwell time per slide, in milliseconds. The lead project holds longer, which is
+ * how the deck gives it weight without a label saying so.
+ */
+export const LEAD_DWELL_MS = 9500;
+export const DWELL_MS = 7000;
 
 export function wrapIndex(index: number, total: number): number {
   if (total <= 0) return 0;
@@ -13,8 +15,8 @@ export function stepIndex(current: number, delta: number, total: number): number
 }
 
 /** Seconds for the `--dwell` custom property that drives a tab's progress bar. */
-export function dwellSeconds(index: number): number {
-  return (SLIDE_DWELL_MS[index] ?? DEFAULT_DWELL_MS) / 1000;
+export function dwellSeconds(lead: boolean): number {
+  return (lead ? LEAD_DWELL_MS : DWELL_MS) / 1000;
 }
 
 /**

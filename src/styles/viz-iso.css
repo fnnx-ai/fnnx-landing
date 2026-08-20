@@ -1,5 +1,5 @@
 /*
- * Isometric motif kit for the hero carousel: plinths, ground rigs and glows.
+ * Isometric motif kit for the project carousel: plinths, ground rigs and glows.
  * Global rather than component scoped because the slide components draw from
  * the same kit, but every rule is nested under .viz-in so it only ever applies
  * inside a carousel stage. Anything only one slide needs stays in that slide.

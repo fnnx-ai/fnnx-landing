@@ -1,22 +1,20 @@
 ---
+import FalconViz from './projects/FalconViz.astro';
+import FireflyViz from './projects/FireflyViz.astro';
+import FnnxViz from './projects/FnnxViz.astro';
+import ScikitLlmViz from './projects/ScikitLlmViz.astro';
+import SlideCaption from './projects/SlideCaption.astro';
 import Icon from './Icon.astro';
-import FalconViz from './hero/FalconViz.astro';
-import FireflyViz from './hero/FireflyViz.astro';
-import FnnxViz from './hero/FnnxViz.astro';
-import ScikitLlmViz from './hero/ScikitLlmViz.astro';
-import SlideCaption from './hero/SlideCaption.astro';
 import { dwellSeconds } from '../lib/carousel';
-import '../styles/hero-iso.css';
+import { GITHUB_ORG, PROJECTS, slideLabel } from '../lib/projects';
+import '../styles/viz-iso.css';
 
-const INSTALL = 'pip install fnnx';
-
-/** The rail doubles as the ecosystem index: one tab per library, in slide order. */
-const tabs = [
-  { n: '01', name: 'FNNX', logo: '/logos/fnnx.svg', marker: 'thread' },
-  { n: '02', name: 'Scikit-LLM', logo: '/logos/scikit-llm.svg', marker: null },
-  { n: '03', name: 'Falcon', logo: '/logos/falcon.svg', marker: null },
-  { n: '04', name: 'Firefly', logo: '/logos/firefly.svg', marker: null },
-] as const;
+const VIZ: Record<string, typeof FnnxViz> = {
+  fnnx: FnnxViz,
+  'scikit-llm': ScikitLlmViz,
+  falcon: FalconViz,
+  firefly: FireflyViz,
+};
 ---
 
 <section class="hero" id="hero">
@@ -25,112 +23,58 @@ const tabs = [
   <div class="wrap hero-in">
     <!-- Left column: stable. It never rotates with the carousel. -->
     <div class="hero-copy">
-      <p class="eyebrow">
-        <span class="pip" aria-hidden="true"></span>Open source · MIT licensed
-      </p>
-
       <h1>
         An open ecosystem for machine&nbsp;learning<span class="dot">.</span>
       </h1>
 
       <p class="sub">
-        Independent open-source libraries, each doing one thing well — train models, wield LLMs,
-        ship them anywhere.
+        Open-source libraries for training models, working with LLMs, and packaging them to run
+        anywhere. Each is installed and used on its own.
       </p>
 
       <div class="cta">
-        <a class="btn btn-p" href="https://github.com/BeastByteAI">
+        <a class="btn btn-p" href={GITHUB_ORG}>
           <Icon name="github" class="h-[15px] w-[15px]" />
           Explore on GitHub
         </a>
-        <button class="chip" type="button" data-copy={INSTALL}>
-          <span class="p" aria-hidden="true">$</span>
-          <span class="txt">{INSTALL}</span>
-          <span class="st" aria-live="polite">copy</span>
-        </button>
+        <a class="btn btn-s" href="#fnnx">Explore FNNX <span aria-hidden="true">&rarr;</span></a>
       </div>
     </div>
 
-    <!-- Right column: one slide per library, all sharing the caption geometry. -->
+    <!-- Right column: one slide per project, all sharing the caption geometry. -->
     <div class="stage" id="stage">
-      <article class="slide" id="slide-1" role="tabpanel" aria-labelledby="s1-name" data-on>
-        <div class="viz" aria-hidden="true"><div class="viz-in"><FnnxViz /></div></div>
-        <SlideCaption
-          index="01"
-          total="04"
-          name="FNNX"
-          nameId="s1-name"
-          logo="/logos/fnnx.svg"
-          tagline="An open format for shipping any model — the thread through this ecosystem."
-          meta={{ kind: 'spec', label: 'Open spec' }}
-          href="https://github.com/BeastByteAI/FNNX"
-        />
-      </article>
-
-      <article
-        class="slide"
-        id="slide-2"
-        role="tabpanel"
-        aria-labelledby="s2-name"
-        aria-hidden="true"
-      >
-        <div class="viz" aria-hidden="true"><div class="viz-in"><ScikitLlmViz /></div></div>
-        <SlideCaption
-          index="02"
-          total="04"
-          name="Scikit-LLM"
-          nameId="s2-name"
-          logo="/logos/scikit-llm.svg"
-          tagline="Large language models in the familiar scikit-learn API."
-          meta={{ kind: 'stars', repo: 'BeastByteAI/scikit-llm', fallbackStars: 3530 }}
-          href="https://github.com/BeastByteAI/scikit-llm"
-        />
-      </article>
-
-      <article
-        class="slide"
-        id="slide-3"
-        role="tabpanel"
-        aria-labelledby="s3-name"
-        aria-hidden="true"
-      >
-        <div class="viz" aria-hidden="true"><div class="viz-in"><FalconViz /></div></div>
-        <SlideCaption
-          index="03"
-          total="04"
-          name="Falcon"
-          nameId="s3-name"
-          logo="/logos/falcon.svg"
-          tagline="Production-ready ML training in a single line of code."
-          meta={{ kind: 'stars', repo: 'BeastByteAI/falcon', fallbackStars: 165 }}
-          href="https://github.com/BeastByteAI/falcon"
-        />
-      </article>
-
-      <article
-        class="slide"
-        id="slide-4"
-        role="tabpanel"
-        aria-labelledby="s4-name"
-        aria-hidden="true"
-      >
-        <div class="viz" aria-hidden="true"><div class="viz-in"><FireflyViz /></div></div>
-        <SlideCaption
-          index="04"
-          total="04"
-          name="Firefly"
-          nameId="s4-name"
-          logo="/logos/firefly.svg"
-          tagline="A minimal, torch-like deep learning framework."
-        />
-      </article>
+      {
+        PROJECTS.map((project, i) => {
+          const Viz = VIZ[project.id];
+          return (
+            <article
+              class="slide"
+              id={`slide-${i + 1}`}
+              role="tabpanel"
+              aria-labelledby={`${project.id}-name`}
+              aria-hidden={i === 0 ? 'false' : 'true'}
+              data-on={i === 0 ? true : undefined}
+            >
+              <div class="viz" aria-hidden="true">
+                <div class="viz-in">{Viz && <Viz />}</div>
+              </div>
+              <SlideCaption
+                project={project}
+                index={i}
+                total={PROJECTS.length}
+                nameId={`${project.id}-name`}
+              />
+            </article>
+          );
+        })
+      }
     </div>
   </div>
 
   <div class="wrap rail-shell">
-    <div class="rail" id="rail" role="tablist" aria-label="Ecosystem libraries">
+    <div class="rail" id="rail" role="tablist" aria-label="fnnx.ai projects">
       {
-        tabs.map((tab, i) => (
+        PROJECTS.map((project, i) => (
           <button
             class:list={['tab', i === 0 && 'on']}
             id={`tab-${i + 1}`}
@@ -139,16 +83,11 @@ const tabs = [
             aria-selected={i === 0 ? 'true' : 'false'}
             aria-controls={`slide-${i + 1}`}
             tabindex={i === 0 ? 0 : -1}
-            style={`--dwell:${dwellSeconds(i)}s`}
+            style={`--dwell:${dwellSeconds(project.flagship)}s`}
           >
-            {tab.logo ? (
-              <img src={tab.logo} alt="" width="17" height="17" />
-            ) : (
-              <span class="ember" aria-hidden="true" />
-            )}
-            <span class="tn">{tab.n}</span>
-            <span class="tt">{tab.name}</span>
-            {tab.marker === 'thread' && <span class="thread" aria-hidden="true" />}
+            <img src={project.logo} alt="" width="17" height="17" />
+            <span class="tn">{slideLabel(i)}</span>
+            <span class="tt">{project.name}</span>
             <i class="bar" aria-hidden="true" />
           </button>
         ))
@@ -164,7 +103,6 @@ const tabs = [
 
     position: relative;
     padding: 74px 0 0;
-    /* The ecosystem strip used to draw this line; the rail hands over to the spec section now. */
     border-bottom: 1px solid var(--color-line-soft);
   }
 
@@ -187,27 +125,7 @@ const tabs = [
     align-items: center;
   }
 
-  .eyebrow {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-  }
-
-  .pip {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--color-accent);
-    box-shadow: 0 0 10px 1px rgba(255, 117, 0, 0.85);
-  }
-
   h1 {
-    margin-top: 28px;
     max-width: 18ch;
     font-size: clamp(36px, 3.7vw, 54px);
     font-weight: 640;
@@ -222,7 +140,7 @@ const tabs = [
 
   .sub {
     margin-top: 24px;
-    max-width: 40ch;
+    max-width: 42ch;
     font-size: 18px;
     line-height: 1.7;
     color: var(--color-body);
@@ -264,64 +182,30 @@ const tabs = [
     transform: translateY(-1px);
   }
 
-  /* Click-to-copy install line: a bordered mono pill, legible with or without JS. */
-  .chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    height: 48px;
-    padding: 0 18px;
+  .btn-s {
     border: 1px solid var(--color-line);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.02);
-    font-family: var(--font-mono);
-    font-size: 14px;
     color: var(--color-ink);
-    cursor: pointer;
-    transition:
-      transform 0.18s,
-      background 0.25s,
-      border-color 0.25s;
   }
 
-  .chip:hover {
+  .btn-s:hover {
     border-color: rgba(255, 117, 0, 0.45);
     background: rgba(255, 117, 0, 0.07);
     transform: translateY(-1px);
   }
 
-  .chip:focus-visible {
-    outline: 1px solid rgba(255, 161, 77, 0.6);
-    outline-offset: 2px;
+  .btn-s span {
+    transition: transform 0.2s;
   }
 
-  .chip .p {
-    color: var(--color-accent);
-  }
-
-  .chip .st {
-    font-size: 10.5px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-    transition: color 0.2s;
-  }
-
-  .chip:hover .st,
-  .chip[data-copied] .st {
-    color: var(--color-accent-soft);
-  }
-
-  .chip[data-copied] {
-    border-color: rgba(255, 117, 0, 0.55);
-    background: rgba(255, 117, 0, 0.09);
+  .btn-s:hover span {
+    transform: translateX(3px);
   }
 
   /* ---------------- carousel stage ---------------- */
   .stage {
     position: relative;
     width: 100%;
-    height: calc(356px * var(--vs) + 156px);
+    height: calc(356px * var(--vs) + 182px);
   }
 
   .slide {
@@ -361,7 +245,7 @@ const tabs = [
     transform-origin: 0 0;
   }
 
-  /* ---------------- tab rail: the ecosystem, as an index ---------------- */
+  /* ---------------- tab rail ---------------- */
   .rail-shell {
     position: relative;
     z-index: 1;
@@ -369,9 +253,10 @@ const tabs = [
     padding-bottom: 74px;
   }
 
+  /* Auto-fit, so a fifth project joins the rail without a layout rewrite. */
   .rail {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
     gap: 1px;
     background: var(--color-line-soft);
     border-top: 1px solid var(--color-line-soft);
@@ -420,33 +305,6 @@ const tabs = [
     transition: color 0.25s;
   }
 
-  /* FNNX is the thread through the ecosystem, so its tab carries the accent pip. */
-  .tab .thread {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--color-accent);
-    box-shadow: 0 0 9px 1px rgba(255, 117, 0, 0.8);
-    opacity: 0.5;
-    transition: opacity 0.25s;
-  }
-
-  .tab .ember {
-    width: 9px;
-    height: 9px;
-    margin: 0 4px;
-    border-radius: 50%;
-    flex: 0 0 auto;
-    background: radial-gradient(
-      circle,
-      rgba(255, 190, 130, 0.9),
-      rgba(255, 117, 0, 0.5) 45%,
-      transparent 72%
-    );
-    opacity: 0.4;
-    transition: opacity 0.25s;
-  }
-
   .tab.on {
     background: rgba(255, 255, 255, 0.028);
   }
@@ -461,11 +319,6 @@ const tabs = [
 
   .tab.on .tt {
     color: var(--color-ink);
-  }
-
-  .tab.on .thread,
-  .tab.on .ember {
-    opacity: 1;
   }
 
   .tab.on::before {
@@ -551,7 +404,6 @@ const tabs = [
     }
 
     h1 {
-      margin-top: 20px;
       max-width: 22ch;
       font-size: 32px;
     }
@@ -566,8 +418,7 @@ const tabs = [
       margin-top: 28px;
     }
 
-    .btn,
-    .chip {
+    .btn {
       flex: 1 1 100%;
       justify-content: center;
       height: 46px;
@@ -579,11 +430,11 @@ const tabs = [
     }
 
     .stage {
-      height: calc(356px * var(--vs) + 176px);
+      height: calc(356px * var(--vs) + 202px);
     }
 
     .rail {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     }
 
     .tab {
@@ -721,47 +572,5 @@ const tabs = [
     fit();
     window.addEventListener('resize', fit);
     go(parseSlideOverride(`${location.hash}&${location.search}`, slides.length));
-  }
-
-  const chip = document.querySelector<HTMLButtonElement>('.chip[data-copy]');
-
-  if (chip) {
-    const state = chip.querySelector<HTMLElement>('.st');
-    let reset = 0;
-
-    const copy = async (text: string): Promise<boolean> => {
-      try {
-        await navigator.clipboard.writeText(text);
-        return true;
-      } catch {
-        // The clipboard API needs a secure context; fall back to a throwaway selection.
-        const field = document.createElement('textarea');
-        field.value = text;
-        field.setAttribute('readonly', '');
-        field.style.position = 'fixed';
-        field.style.opacity = '0';
-        document.body.append(field);
-        field.select();
-        const legacyCopy = (document as Document & { execCommand?: (command: string) => boolean })
-          .execCommand;
-        const copied = legacyCopy ? legacyCopy.call(document, 'copy') : false;
-        field.remove();
-        return copied;
-      }
-    };
-
-    chip.addEventListener('click', async () => {
-      const copied = await copy(chip.dataset.copy ?? '');
-      if (!state) return;
-
-      state.textContent = copied ? 'copied' : 'copy failed';
-      chip.toggleAttribute('data-copied', copied);
-
-      window.clearTimeout(reset);
-      reset = window.setTimeout(() => {
-        state.textContent = 'copy';
-        chip.removeAttribute('data-copied');
-      }, 1800);
-    });
   }
 </script>

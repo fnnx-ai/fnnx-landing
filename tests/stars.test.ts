@@ -33,17 +33,17 @@ describe('fetchStars', () => {
       ok: true,
       json: async () => ({ stargazers_count: 3530 }),
     });
-    expect(await fetchStars('BeastByteAI/scikit-llm', fetchFn)).toBe(3530);
+    expect(await fetchStars('fnnx-ai/scikit-llm', fetchFn)).toBe(3530);
   });
 
   it('returns null on a non-ok response', async () => {
     const fetchFn = fakeFetch({ ok: false, json: async () => ({}) });
-    expect(await fetchStars('BeastByteAI/scikit-llm', fetchFn)).toBeNull();
+    expect(await fetchStars('fnnx-ai/scikit-llm', fetchFn)).toBeNull();
   });
 
   it('returns null on network errors', async () => {
     const fetchFn = fakeFetch(new Error('offline'));
-    expect(await fetchStars('BeastByteAI/scikit-llm', fetchFn)).toBeNull();
+    expect(await fetchStars('fnnx-ai/scikit-llm', fetchFn)).toBeNull();
   });
 
   it('returns null on a malformed payload', async () => {
@@ -51,6 +51,6 @@ describe('fetchStars', () => {
       ok: true,
       json: async () => ({ stargazers_count: 'many' }),
     });
-    expect(await fetchStars('BeastByteAI/scikit-llm', fetchFn)).toBeNull();
+    expect(await fetchStars('fnnx-ai/scikit-llm', fetchFn)).toBeNull();
   });
 });
